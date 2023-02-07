@@ -1,485 +1,0 @@
-[1mdiff --git a/.gitignore b/.gitignore[m
-[1mnew file mode 100644[m
-[1mindex 0000000..ac3e4da[m
-[1m--- /dev/null[m
-[1m+++ b/.gitignore[m
-[36m@@ -0,0 +1,2 @@[m
-[32m+[m[32m/BOOTX64.EFI[m
-[32m+[m[32m/BOOTX64.dll[m
-[1mdiff --git a/.vs/slnx.sqlite b/.vs/slnx.sqlite[m
-[1mnew file mode 100644[m
-[1mindex 0000000..e69de29[m
-[1mdiff --git a/Makefile b/Makefile[m
-[1mnew file mode 100644[m
-[1mindex 0000000..ccdddb2[m
-[1m--- /dev/null[m
-[1m+++ b/Makefile[m
-[36m@@ -0,0 +1,14 @@[m
-[32m+[m[32mCC = x86_64-w64-mingw32-gcc[m
-[32m+[m[32mCFLAGS = -shared -Wall -Wextra -nostdlib -fno-builtin -fno-stack-protector -mno-red-zone -e EfiMain -D __X64[m
-[32m+[m
-[32m+[m[32mall: BOOTX64.EFI[m
-[32m+[m
-[32m+[m[32mBOOTX64.dll: main.c[m
-[32m+[m	[32m$(CC) $(CFLAGS) $< -o $@[m
-[32m+[m
-[32m+[m[32mBOOTX64.EFI: BOOTX64.dll[m
-[32m+[m	[32mobjcopy --target=efi-app-x86_64 $< $@[m
-[32m+[m
-[32m+[m[32mclean:[m
-[32m+[m	[32mrm -f BOOTX64.EFI[m
-[32m+[m	[32mrm -f BOOTX64.dll[m
-\ No newline at end of file[m
-[1mdiff --git a/configuration_table.h b/efi_headers/configuration_table.h[m
-[1msimilarity index 100%[m
-[1mrename from configuration_table.h[m
-[1mrename to efi_headers/configuration_table.h[m
-[1mdiff --git a/memory_type_define.h b/efi_headers/memory_type_define.h[m
-[1msimilarity index 100%[m
-[1mrename from memory_type_define.h[m
-[1mrename to efi_headers/memory_type_define.h[m
-[1mdiff --git a/system_table.h b/efi_headers/system_table.h[m
-[1msimilarity index 100%[m
-[1mrename from system_table.h[m
-[1mrename to efi_headers/system_table.h[m
-[1mdiff --git a/efi_headers/system_table/boot_services.h b/efi_headers/system_table/boot_services.h[m
-[1mnew file mode 100644[m
-[1mindex 0000000..73b823a[m
-[1m--- /dev/null[m
-[1m+++ b/efi_headers/system_table/boot_services.h[m
-[36m@@ -0,0 +1,78 @@[m
-[32m+[m[32m#pragma once[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m#include "../type_define.h"[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m//EFI_TABLE_HEADERの為にinclude[m[41m[m
-[32m+[m[32m#include "../table_header.h"[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m#include "boot_services/task_priority_services.h"[m[41m[m
-[32m+[m[32m#include "boot_services/memory_allocation_services.h"[m[41m[m
-[32m+[m[32m#include "boot_services/event_and_timer_services.h"[m[41m[m
-[32m+[m[32m#include "boot_services/protocol_handler_services.h"[m[41m[m
-[32m+[m[32m#include "boot_services/image_services.h"[m[41m[m
-[32m+[m[32m#include "boot_services/miscellaneous_services.h"[m[41m[m
-[32m+[m[32m#include "boot_services/driver_support_services.h"[m[41m[m
-[32m+[m[32m#include "boot_services/open_and_close_protocol_services.h"[m[41m[m
-[32m+[m[32m#include "boot_services/library_services.h"[m[41m[m
-[32m+[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32mtypedef struct {[m[41m[m
-[32m+[m[32m    EFI_TABLE_HEADER     Hdr;[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m    EFI_RAISE_TPL        RaiseTPL;[m[41m[m
-[32m+[m[32m    EFI_RESTORE_TPL      RestoreTPL;[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m    EFI_ALLOCATE_PAGES   AllocatePages;[m[41m[m
-[32m+[m[32m    EFI_FREE_PAGES       FreePages;[m[41m[m
-[32m+[m[32m    EFI_GET_MEMORY_MAP   GetMemoryMap;[m[41m[m
-[32m+[m[32m    EFI_ALLOCATE_POOL    AllocatePool;[m[41m[m
-[32m+[m[32m    EFI_FREE_POOL        FreePool;[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m    EFI_CREATE_EVENT     CreateEvent;[m[41m[m
-[32m+[m[32m    EFI_SET_TIMER        SetTimer;[m[41m[m
-[32m+[m[32m    EFI_WAIT_FOR_EVENT   WaitForEvent;[m[41m[m
-[32m+[m[32m    EFI_SIGNAL_EVENT     SignalEvent;[m[41m[m
-[32m+[m[32m    EFI_CLOSE_EVENT      CloseEvent;[m[41m[m
-[32m+[m[32m    EFI_CHECK_EVENT      CheckEvent;[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m    EFI_INSTALL_PROTOCOL_INTERFACE     InstallProtocolInterface;[m[41m[m
-[32m+[m[32m    EFI_REINSTALL_PROTOCOL_INTERFACE   ReinstallProtocolInterface;[m[41m[m
-[32m+[m[32m    EFI_UNINSTALL_PROTOCOL_INTERFACE   UninstallProtocolInterface;[m[41m[m
-[32m+[m[32m    EFI_HANDLE_PROTOCOL                HandleProtocol;[m[41m[m
-[32m+[m[32m    VOID*   Reserved;[m[41m[m
-[32m+[m[32m    EFI_REGISTER_PROTOCOL_NOTIFY       RegisterProtocolNotify;[m[41m[m
-[32m+[m[32m    EFI_LOCATE_HANDLE                  LocateHandle;[m[41m[m
-[32m+[m[32m    EFI_LOCATE_DEVICE_PATH             LocateDevicePath;[m[41m[m
-[32m+[m[32m    EFI_INSTALL_CONFIGURATION_TABLE       InstallConfigurationTable;[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m    EFI_IMAGE_UNLOAD               LoadImage;[m[41m[m
-[32m+[m[32m    EFI_IMAGE_START                StartImage;[m[41m[m
-[32m+[m[32m    EFI_EXIT                       Exit;[m[41m[m
-[32m+[m[32m    EFI_IMAGE_UNLOAD               UnloadImage;[m[41m[m
-[32m+[m[32m    EFI_EXIT_BOOT_SERVICES         ExitBootServices;[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m    EFI_GET_NEXT_MONOTONIC_COUNT   GetNextMonotonicCount;[m[41m[m
-[32m+[m[32m    EFI_STALL                      Stall;[m[41m[m
-[32m+[m[32m    EFI_SET_WATCHDOG_TIMER         SetWatchdogTimer;[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m    EFI_CONNECT_CONTROLLER         ConnectController;[m[41m[m
-[32m+[m[32m    EFI_DISCONNECT_CONTROLLER      DisconnectController;[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m    EFI_OPEN_PROTOCOL              OpenProtocol;[m[41m[m
-[32m+[m[32m    EFI_CLOSE_PROTOCOL             CloseProtocol;[m[41m[m
-[32m+[m[32m    EFI_OPEN_PROTOCOL_INFORMATION     OpenProtocolInformation;[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m    EFI_PROTOCOLS_PER_HANDLE       ProtocolsPerHandle;[m[41m[m
-[32m+[m[32m    EFI_LOCATE_HANDLE_BUFFER       LocateHandleBuffer;[m[41m[m
-[32m+[m[32m    EFI_LOCATE_PROTOCOL            LocateProtocol;[m[41m[m
-[32m+[m[32m    EFI_INSTALL_MULTIPLE_PROTOCOL_INTERFACES  InstallMultipleProtocolInterfaces;[m[41m[m
-[32m+[m[32m    EFI_UNINSTALL_MULTIPLE_PROTOCOL_INTERFACES  UninstallMultipleProtocolInterfaces;[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m    /*[m[41m[m
-[32m+[m[32m    EFI_CALCULATE_CRC32    CalculateCrc32;[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m    EFI_COPY_MEM           CopyMem;[m[41m[m
-[32m+[m[32m    EFI_SET_MEM            SetMem;[m[41m[m
-[32m+[m[32m    EFI_CREATE_EVENT_EX    CreateEventEx;[m[41m[m
-[32m+[m[32m    */[m[41m[m
-[32m+[m[32m  } EFI_BOOT_SERVICES;[m
-\ No newline at end of file[m
-[1mdiff --git a/system_table/boot_services/driver_support_services.h b/efi_headers/system_table/boot_services/driver_support_services.h[m
-[1msimilarity index 100%[m
-[1mrename from system_table/boot_services/driver_support_services.h[m
-[1mrename to efi_headers/system_table/boot_services/driver_support_services.h[m
-[1mdiff --git a/system_table/boot_services/event_and_timer_services.h b/efi_headers/system_table/boot_services/event_and_timer_services.h[m
-[1msimilarity index 100%[m
-[1mrename from system_table/boot_services/event_and_timer_services.h[m
-[1mrename to efi_headers/system_table/boot_services/event_and_timer_services.h[m
-[1mdiff --git a/system_table/boot_services/image_services.h b/efi_headers/system_table/boot_services/image_services.h[m
-[1msimilarity index 100%[m
-[1mrename from system_table/boot_services/image_services.h[m
-[1mrename to efi_headers/system_table/boot_services/image_services.h[m
-[1mdiff --git a/system_table/boot_services/library_services.h b/efi_headers/system_table/boot_services/library_services.h[m
-[1msimilarity index 100%[m
-[1mrename from system_table/boot_services/library_services.h[m
-[1mrename to efi_headers/system_table/boot_services/library_services.h[m
-[1mdiff --git a/system_table/boot_services/locate_type_define.h b/efi_headers/system_table/boot_services/locate_type_define.h[m
-[1msimilarity index 100%[m
-[1mrename from system_table/boot_services/locate_type_define.h[m
-[1mrename to efi_headers/system_table/boot_services/locate_type_define.h[m
-[1mdiff --git a/system_table/boot_services/memory_allocation_services.h b/efi_headers/system_table/boot_services/memory_allocation_services.h[m
-[1msimilarity index 100%[m
-[1mrename from system_table/boot_services/memory_allocation_services.h[m
-[1mrename to efi_headers/system_table/boot_services/memory_allocation_services.h[m
-[1mdiff --git a/system_table/boot_services/miscellaneous_services.h b/efi_headers/system_table/boot_services/miscellaneous_services.h[m
-[1msimilarity index 100%[m
-[1mrename from system_table/boot_services/miscellaneous_services.h[m
-[1mrename to efi_headers/system_table/boot_services/miscellaneous_services.h[m
-[1mdiff --git a/system_table/boot_services/open_and_close_protocol_services.h b/efi_headers/system_table/boot_services/open_and_close_protocol_services.h[m
-[1msimilarity index 100%[m
-[1mrename from system_table/boot_services/open_and_close_protocol_services.h[m
-[1mrename to efi_headers/system_table/boot_services/open_and_close_protocol_services.h[m
-[1mdiff --git a/system_table/boot_services/protocol_handler_services.h b/efi_headers/system_table/boot_services/protocol_handler_services.h[m
-[1msimilarity index 100%[m
-[1mrename from system_table/boot_services/protocol_handler_services.h[m
-[1mrename to efi_headers/system_table/boot_services/protocol_handler_services.h[m
-[1mdiff --git a/system_table/boot_services/protocols/device_path_protocol.h b/efi_headers/system_table/boot_services/protocols/device_path_protocol.h[m
-[1msimilarity index 100%[m
-[1mrename from system_table/boot_services/protocols/device_path_protocol.h[m
-[1mrename to efi_headers/system_table/boot_services/protocols/device_path_protocol.h[m
-[1mdiff --git a/system_table/boot_services/task_priority_services.h b/efi_headers/system_table/boot_services/task_priority_services.h[m
-[1msimilarity index 100%[m
-[1mrename from system_table/boot_services/task_priority_services.h[m
-[1mrename to efi_headers/system_table/boot_services/task_priority_services.h[m
-[1mdiff --git a/system_table/graphics_output_protocol.h b/efi_headers/system_table/graphics_output_protocol.h[m
-[1msimilarity index 100%[m
-[1mrename from system_table/graphics_output_protocol.h[m
-[1mrename to efi_headers/system_table/graphics_output_protocol.h[m
-[1mdiff --git a/system_table/runtime_services.h b/efi_headers/system_table/runtime_services.h[m
-[1msimilarity index 100%[m
-[1mrename from system_table/runtime_services.h[m
-[1mrename to efi_headers/system_table/runtime_services.h[m
-[1mdiff --git a/system_table/runtime_services/miscellaneous_runtime_services.h b/efi_headers/system_table/runtime_services/miscellaneous_runtime_services.h[m
-[1msimilarity index 100%[m
-[1mrename from system_table/runtime_services/miscellaneous_runtime_services.h[m
-[1mrename to efi_headers/system_table/runtime_services/miscellaneous_runtime_services.h[m
-[1mdiff --git a/system_table/runtime_services/time_services.h b/efi_headers/system_table/runtime_services/time_services.h[m
-[1msimilarity index 100%[m
-[1mrename from system_table/runtime_services/time_services.h[m
-[1mrename to efi_headers/system_table/runtime_services/time_services.h[m
-[1mdiff --git a/system_table/runtime_services/variable_services.h b/efi_headers/system_table/runtime_services/variable_services.h[m
-[1msimilarity index 100%[m
-[1mrename from system_table/runtime_services/variable_services.h[m
-[1mrename to efi_headers/system_table/runtime_services/variable_services.h[m
-[1mdiff --git a/system_table/runtime_services/virtual_memory_services.h b/efi_headers/system_table/runtime_services/virtual_memory_services.h[m
-[1msimilarity index 100%[m
-[1mrename from system_table/runtime_services/virtual_memory_services.h[m
-[1mrename to efi_headers/system_table/runtime_services/virtual_memory_services.h[m
-[1mdiff --git a/system_table/simple_text_input_protocol.h b/efi_headers/system_table/simple_text_input_protocol.h[m
-[1msimilarity index 86%[m
-[1mrename from system_table/simple_text_input_protocol.h[m
-[1mrename to efi_headers/system_table/simple_text_input_protocol.h[m
-[1mindex 1106072..edbd28c 100644[m
-[1m--- a/system_table/simple_text_input_protocol.h[m
-[1m+++ b/efi_headers/system_table/simple_text_input_protocol.h[m
-[36m@@ -6,14 +6,24 @@[m
- [m
- #include "../type_define.h"[m
- [m
-[32m+[m[32m/**[m[41m[m
-[32m+[m[32m * _EFI_INPUT_KEYの前方宣言です[m[41m[m
-[32m+[m[32m*/[m[41m[m
-[32m+[m[32mstruct _EFI_INPUT_KEY;[m[41m[m
-[32m+[m[41m[m
- /** [m
-  * EFI_INPUT_KEY[m
-  * @details スキャンコードとUCS-2を入れられます。[m
-  */[m
-[31m-typedef struct _EFI_INPUT_KEY {[m
-[32m+[m[32mstruct _EFI_INPUT_KEY {[m[41m[m
-     UINT16  ScanCode;[m
-     CHAR16  UnicodeChar;[m
-[31m-} EFI_INPUT_KEY;[m
-[32m+[m[32m};[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m/**[m[41m[m
-[32m+[m[32m * EFI_INPUT_KEYです[m[41m[m
-[32m+[m[32m*/[m[41m[m
-[32m+[m[32mtypedef struct _EFI_INPUT_KEY EFI_INPUT_KEY;[m[41m[m
- [m
- //仮定義しないと後方から参照がないと怒られる[m
- struct _EFI_SIMPLE_TEXT_INPUT_PROTOCOL;[m
-[1mdiff --git a/system_table/simple_text_output_protocol.h b/efi_headers/system_table/simple_text_output_protocol.h[m
-[1msimilarity index 93%[m
-[1mrename from system_table/simple_text_output_protocol.h[m
-[1mrename to efi_headers/system_table/simple_text_output_protocol.h[m
-[1mindex 3061997..77d8431 100644[m
-[1m--- a/system_table/simple_text_output_protocol.h[m
-[1m+++ b/efi_headers/system_table/simple_text_output_protocol.h[m
-[36m@@ -148,17 +148,17 @@[m [mstruct _SIMPLE_TEXT_OUTPUT_MODE {[m
- [m
-     /** 現在のカーソル表示状態 */[m
-     BOOLEAN                            CursorVisible;[m
-[31m-} ;[m
-[32m+[m[32m};[m[41m[m
- [m
- /** [m
-  * SIMPLE_TEXT_OUTPUT_MODEです[m
-  */[m
-[31m-typedef _SIMPLE_TEXT_OUTPUT_MODE SIMPLE_TEXT_OUTPUT_MODE;[m
-[32m+[m[32mtypedef struct _SIMPLE_TEXT_OUTPUT_MODE SIMPLE_TEXT_OUTPUT_MODE;[m[41m[m
- [m
- /** [m
-  * SIMPLE_TEXT_OUTPUTのプロトタイプ[m
-  */[m
-[31m-typedef struct _EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL {[m
-[32m+[m[32mstruct _EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL {[m[41m[m
-     EFI_TEXT_RESET                           Reset;[m
-     EFI_TEXT_STRING                          OutputString;[m
-     EFI_TEXT_TEST_STRING                     TestString;[m
-[36m@@ -169,4 +169,9 @@[m [mtypedef struct _EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL {[m
-     EFI_TEXT_SET_CURSOR_POSITION             SetCursorPosition;[m
-     EFI_TEXT_ENABLE_CURSOR                   EnableCursor;[m
-     SIMPLE_TEXT_OUTPUT_MODE                  *Mode;[m
-[31m-} EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL;[m
-\ No newline at end of file[m
-[32m+[m[32m};[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m/**[m[41m [m
-[32m+[m[32m * SIMPLE_TEXT_OUTPUTプロトコルです[m[41m[m
-[32m+[m[32m */[m[41m[m
-[32m+[m[32mtypedef struct _EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL;[m
-\ No newline at end of file[m
-[1mdiff --git a/table_header.h b/efi_headers/table_header.h[m
-[1msimilarity index 100%[m
-[1mrename from table_header.h[m
-[1mrename to efi_headers/table_header.h[m
-[1mdiff --git a/type_define.h b/efi_headers/type_define.h[m
-[1msimilarity index 90%[m
-[1mrename from type_define.h[m
-[1mrename to efi_headers/type_define.h[m
-[1mindex 9ff47c2..57054f0 100644[m
-[1m--- a/type_define.h[m
-[1m+++ b/efi_headers/type_define.h[m
-[36m@@ -17,24 +17,47 @@[m
-  */[m
- typedef unsigned char BOOLEAN;[m
- [m
-[32m+[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m#ifdef __X86[m[41m[m
-[32m+[m[41m[m
- /** [m
-[31m- * int native-(CPUのBit数/4) byte[m
-[32m+[m[32m * unsigned int native-(CPUのBit数/4) byte[m[41m[m
-  */[m
-[31m-#ifdef __X86[m
-[31m-typedef int INTN;[m
-[32m+[m[32mtypedef unsigned int UINTN;[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m/**[m[41m [m
-[32m+[m[32m * unsigned int native-(CPUのBit数/4) byte[m[41m[m
-[32m+[m[32m */[m[41m[m
-[32m+[m[32mtypedef long long INTN;[m[41m[m
-[32m+[m[41m[m
- #elif  __X64[m
-[32m+[m[41m[m
-[32m+[m[32m/**[m[41m [m
-[32m+[m[32m * unsigned int native-(CPUのBit数/4) byte[m[41m[m
-[32m+[m[32m */[m[41m[m
-[32m+[m[32mtypedef unsigned long long UINTN;[m[41m[m
-[32m+[m[41m[m
-[32m+[m[32m/**[m[41m [m
-[32m+[m[32m * int native-(CPUのBit数/4) byte[m[41m[m
-[32m+[m[32m */[m[41m[m
- typedef long long INTN;[m
-[31m-#endif[m
-[32m+[m[41m[m
-[32m+[m[32m#else[m[41m[m
- [m
- /** [m
-  * unsigned int native-(CPUのBit数/4) byte[m
-  */[m
-[31m-#ifdef __X86[m
-[31m-typedef unsigned int UINTN;[m
-[31m-#elif  __X64[m
- typedef unsigned long long UINTN;[m
-[32m+[m[41m[m
-[32m+[m[32m/**[m[41m [m
-[32m+[m[32m * int native-(CPUのBit数/4) byte[m[41m[m
-[32m+[m[32m */[m[41m[m
-[32m+[m[32mtypedef long long INTN;[m[41m[m
- #endif[m
- [m
-[32m+[m[41m[m
-[32m+[m[41m[m
- /** [m
-  * INT8-1byte[m
-  */[m
-[1mdiff --git a/main.c b/main.c[m
-[1mnew file mode 100644[m
-[1mindex 0000000..9343fc5[m
-[1m--- /dev/null[m
-[1m+++ b/main.c[m
-[36m@@ -0,0 +1,24 @@[m
-[32m+[m[32m#include "efi_headers/type_define.h"[m
-[32m+[m[32m#include "efi_headers/system_table.h"[m
-[32m+[m
-[32m+[m[32mEFI_SYSTEM_TABLE *gSystemTable;[m
-[32m+[m[32m//-------------------------[m
-[32m+[m[32m//[m
-[32m+[m[32m//          EFI[m
-[32m+[m[32m//[m
-[32m+[m[32m//-------------------------[m
-[32m+[m[32mEFI_STATUS EFIAPI EfiMain (IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *SystemTable)[m
-[32m+[m[32m{[m
-[32m+[m[32m    //受け取ったSystemTableをグループにコピー[m
-[32m+[m[32m    gSystemTable = SystemTable;[m
-[32m+[m
-[32m+[m[32m    gSystemTable->ConOut->SetCursorPosition(gSystemTable->ConOut, 10,23);[m
-[32m+[m[32m    gSystemTable->ConOut->OutputString(gSystemTable->ConOut, L"Hello LowLevelUefiKit");[m
-[32m+[m
-[32m+[m[32m    while (1)[m
-[32m+[m[32m    {[m
-[32m+[m[32m    }[m
-[32m+[m[41m    [m
-[32m+[m[32m    return EFI_SUCCESS;[m
-[32m+[m[32m}[m
-[32m+[m
-[1mdiff --git a/system_table/boot_services.h b/system_table/boot_services.h[m
-[1mdeleted file mode 100644[m
-[1mindex f2e4145..0000000[m
-[1m--- a/system_table/boot_services.h[m
-[1m+++ /dev/null[m
-[36m@@ -1,110 +0,0 @@[m
-[31m-#pragma once[m
-[31m-[m
-[31m-#include "../type_define.h"[m
-[31m-[m
-[31m-//EFI_TABLE_HEADERの為にinclude[m
-[31m-#include "../table_header.h"[m
-[31m-[m
-[31m-#include "boot_services/task_priority_services.h"[m
-[31m-#include "boot_services/memory_allocation_services.h"[m
-[31m-#include "boot_services/event_and_timer_services.h"[m
-[31m-#include "boot_services/protocol_handler_services.h"[m
-[31m-#include "boot_services/image_services.h"[m
-[31m-#include "boot_services/miscellaneous_services.h"[m
-[31m-#include "boot_services/driver_support_services.h"[m
-[31m-#include "boot_services/open_and_close_protocol_services.h"[m
-[31m-#include "boot_services/library_services.h"[m
-[31m-[m
-[31m-[m
-[31m-typedef struct {[m
-[31m-    EFI_TABLE_HEADER     Hdr;[m
-[31m-[m
-[31m-    //[m
-[31m-    // Task Priority Services[m
-[31m-    //[m
-[31m-    EFI_RAISE_TPL        RaiseTPL;       // EFI 1.0+[m
-[31m-    EFI_RESTORE_TPL      RestoreTPL;     // EFI 1.0+[m
-[31m-[m
-[31m-    //[m
-[31m-    // Memory Services[m
-[31m-    //[m
-[31m-    EFI_ALLOCATE_PAGES   AllocatePages;  // EFI 1.0+[m
-[31m-    EFI_FREE_PAGES       FreePages;      // EFI 1.0+[m
-[31m-    EFI_GET_MEMORY_MAP   GetMemoryMap;   // EFI 1.0+[m
-[31m-    EFI_ALLOCATE_POOL    AllocatePool;   // EFI 1.0+[m
-[31m-    EFI_FREE_POOL        FreePool;       // EFI 1.0+[m
-[31m-[m
-[31m-    //[m
-[31m-    // Event & Timer Services[m
-[31m-    //[m
-[31m-    EFI_CREATE_EVENT     CreateEvent;    // EFI 1.0+[m
-[31m-    EFI_SET_TIMER        SetTimer;       // EFI 1.0+[m
-[31m-    EFI_WAIT_FOR_EVENT   WaitForEvent;   // EFI 1.0+[m
-[31m-    EFI_SIGNAL_EVENT     SignalEvent;    // EFI 1.0+[m
-[31m-    EFI_CLOSE_EVENT      CloseEvent;     // EFI 1.0+[m
-[31m-    EFI_CHECK_EVENT      CheckEvent;     // EFI 1.0+[m
-[31m-[m
-[31m-    //[m
-[31m-    // Protocol Handler Services[m
-[31m-    //[m
-[31m-    EFI_INSTALL_PROTOCOL_INTERFACE     InstallProtocolInterface;            // EFI 1.0+[m
-[31m-    EFI_REINSTALL_PROTOCOL_INTERFACE   ReinstallProtocolInterface;          // EFI 1.0+[m
-[31m-    EFI_UNINSTALL_PROTOCOL_INTERFACE   UninstallProtocolInterface;          // EFI 1.0+[m
-[31m-    EFI_HANDLE_PROTOCOL                HandleProtocol;                      // EFI 1.0+[m
-[31m-    VOID*   Reserved;    // EFI 1.0+[m
-[31m-    EFI_REGISTER_PROTOCOL_NOTIFY       RegisterProtocolNotify;              // EFI  1.0+[m
-[31m-    EFI_LOCATE_HANDLE                  LocateHandle;                        // EFI 1.0+[m
-[31m-    EFI_LOCATE_DEVICE_PATH             LocateDevicePath;                    // EFI 1.0+[m
-[31m-    EFI_INSTALL_CONFIGURATION_TABLE       InstallConfigurationTable;           // EFI 1.0+[m
-[31m- [m
-[31m-    //[m
-[31m-    // Image Services[m
-[31m-    //[m
-[31m-    EFI_IMAGE_UNLOAD               LoadImage;        // EFI 1.0+[m
-[31m-    EFI_IMAGE_START                StartImage;       // EFI 1.0+[m
-[31m-    EFI_EXIT                       Exit;             // EFI 1.0+[m
-[31m-    EFI_IMAGE_UNLOAD               UnloadImage;      // EFI 1.0+[m
-[31m-    EFI_EXIT_BOOT_SERVICES         ExitBootServices; // EFI 1.0+[m
-[31m-[m
-[31m-    //[m
-[31m-    // Miscellaneous Services[m
-[31m-    //[m
-[31m-    EFI_GET_NEXT_MONOTONIC_COUNT   GetNextMonotonicCount; // EFI 1.0+[m
-[31m-    EFI_STALL                      Stall;                 // EFI 1.0+[m
-[31m-    EFI_SET_WATCHDOG_TIMER         SetWatchdogTimer;      // EFI 1.0+[m
-[31m-[m
-[31m-    //[m
-[31m-    // DriverSupport Services[m
-[31m-    //[m
-[31m-    EFI_CONNECT_CONTROLLER         ConnectController;     // EFI 1.1[m
-[31m-    EFI_DISCONNECT_CONTROLLER      DisconnectController;  // EFI 1.1+[m
-[31m-[m
-[31m-    //[m
-[31m-    // Open and Close Protocol Services[m
-[31m-    //[m
-[31m-    EFI_OPEN_PROTOCOL              OpenProtocol;           // EFI 1.1+[m
-[31m-    EFI_CLOSE_PROTOCOL             CloseProtocol;          // EFI 1.1+[m
-[31m-    EFI_OPEN_PROTOCOL_INFORMATION     OpenProtocolInformation;// EFI 1.1+[m
-[31m-[m
-[31m-    //[m
-[31m-    // Library Services[m
-[31m-    //[m
-[31m-    EFI_PROTOCOLS_PER_HANDLE       ProtocolsPerHandle;     // EFI 1.1+[m
-[31m-    EFI_LOCATE_HANDLE_BUFFER       LocateHandleBuffer;     // EFI 1.1+[m
-[31m-    EFI_LOCATE_PROTOCOL            LocateProtocol;         // EFI 1.1+[m
-[31m-    EFI_INSTALL_MULTIPLE_PROTOCOL_INTERFACES  InstallMultipleProtocolInterfaces;    // EFI 1.1+[m
-[31m-    EFI_UNINSTALL_MULTIPLE_PROTOCOL_INTERFACES  UninstallMultipleProtocolInterfaces;   // EFI 1.1+*[m
-[31m-/* [m
-[31m-    //[m
-[31m-    // 32-bit CRC Services[m
-[31m-    //[m
-[31m-    EFI_CALCULATE_CRC32    CalculateCrc32;     // EFI 1.1+[m
-[31m-[m
-[31m-    //[m
-[31m-    // Miscellaneous Services[m
-[31m-    //[m
-[31m-    EFI_COPY_MEM           CopyMem;        // EFI 1.1+[m
-[31m-    EFI_SET_MEM            SetMem;         // EFI 1.1+[m
-[31m-    EFI_CREATE_EVENT_EX    CreateEventEx;  // UEFI 2.0+[m
-[31m-    */[m
-[31m-  } EFI_BOOT_SERVICES;[m
-\ No newline at end of file[m
