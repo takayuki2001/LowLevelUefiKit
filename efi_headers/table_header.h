@@ -3,7 +3,11 @@
 * @brief EFI_TABLE_HEADERの型定義を行います。
 */
 
-#pragma once
+/*
+    インクルードガード
+*/
+#ifndef __LLUK_TABLE_HEADER_INCLUDED__
+#define __LLUK_TABLE_HEADER_INCLUDED__
 
 #include "type_define.h"
 
@@ -36,3 +40,8 @@ struct _EFI_TABLE_HEADER{
  * 各種のテーブルヘッダです
  */
 typedef struct _EFI_TABLE_HEADER EFI_TABLE_HEADER;
+
+/*
+    インクルードガード終わり
+*/
+#endif

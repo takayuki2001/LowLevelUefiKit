@@ -3,59 +3,72 @@
 * @brief EFIの型定義を行います。
 */
 
-#pragma once
+/*
+    インクルードガード
+*/
+#ifndef __LLUK_TYPE_DEFINE_INCLUDED__
+#define __LLUK_TYPE_DEFINE_INCLUDED__
 
+/*
+    アーキテクチャ定義
+*/
 #ifdef __X86
-    #define __Architecture 32
-#elif __X64
-    #define __Architecture 64
+    #define __LLUK_ARCHITECTURE_32
+#elif defined(__X64)
+    #define __LLUK_ARCHITECTURE_64
+#else
+    #error Unknown Architecture
 #endif
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+//                                      型定義
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////
+//
+//              Native型
+//
+///////////////////////////////////////////
+
+#ifdef __LLUK_ARCHITECTURE_32
+
+    /** 
+     * unsigned int native-(CPUのBit数/4) byte
+     */
+    typedef unsigned int UINTN;
+
+    /** 
+     * int native-(CPUのBit数/4) byte
+     */
+    typedef int INTN;
+
+#elif  defined(__LLUK_ARCHITECTURE_64)
+
+    /** 
+     * unsigned int native-(CPUのBit数/4) byte
+     */
+    typedef unsigned long long UINTN;
+
+    /** 
+     * int native-(CPUのBit数/4) byte
+     */
+    typedef long long INTN;
+
+#endif
+
+///////////////////////////////////////////
+//
+//              Native型以外
+//
+///////////////////////////////////////////
 
 /** 
  * ブーリアン-1byte
  * @details 0がFalse　1がTrue それ以外は未定義
  */
 typedef unsigned char BOOLEAN;
-
-
-
-#ifdef __X86
-
-/** 
- * unsigned int native-(CPUのBit数/4) byte
- */
-typedef unsigned int UINTN;
-
-/** 
- * unsigned int native-(CPUのBit数/4) byte
- */
-typedef long long INTN;
-
-#elif  __X64
-
-/** 
- * unsigned int native-(CPUのBit数/4) byte
- */
-typedef unsigned long long UINTN;
-
-/** 
- * int native-(CPUのBit数/4) byte
- */
-typedef long long INTN;
-
-#else
-
-/** 
- * unsigned int native-(CPUのBit数/4) byte
- */
-typedef unsigned long long UINTN;
-
-/** 
- * int native-(CPUのBit数/4) byte
- */
-typedef long long INTN;
-#endif
-
 
 
 /** 
@@ -217,15 +230,15 @@ typedef UINT32 EFI_IP_ADDRESS[4];
 #define EFIAPI
 
 
-///////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
 //
-//          終了ステータスコード
+//                                終了ステータスコード
 //
-///////////////////////////////////////////
-#if  __Architecture == 32
-    #define __EFI_ERROR 0b10000000000000000000000000000000
-#elif __Architecture == 64
-    #define __EFI_ERROR 0b1000000000000000000000000000000000000000000000000000000000000000
+//////////////////////////////////////////////////////////////////////////////////////
+#ifdef  __LLUK_ARCHITECTURE_32
+    #define __EFI_ERROR (1 << 31)
+#elif defined(__LLUK_ARCHITECTURE_64)
+    #define __EFI_ERROR (1UL << 63)
 #endif
 
 ///////////////////////////////////////////
@@ -452,3 +465,8 @@ typedef UINT32 EFI_IP_ADDRESS[4];
  * HTTPエラーが発生しました
 */
 #define EFI_HTTP_ERROR 35 | __EFI_ERROR
+
+/*
+    インクルードガード終わり
+*/
+#endif

@@ -3,7 +3,14 @@
 * @brief system_tableの型定義を行います。
 */
 
-#pragma once
+/*
+    インクルードガード
+*/
+#ifndef __LLUK_SYSTEM_TABLE_INCLUDED__
+#define __LLUK_SYSTEM_TABLE_INCLUDED__
+
+#include "type_define.h"
+
 
 #include "type_define.h"
 
@@ -68,3 +75,10 @@ struct _EFI_SYSTEM_TABLE{
  * EFIのシステムテーブルです
  */
 typedef struct _EFI_SYSTEM_TABLE EFI_SYSTEM_TABLE;
+
+
+/*
+    インクルードガード終わり
+*/
+#endif
+
