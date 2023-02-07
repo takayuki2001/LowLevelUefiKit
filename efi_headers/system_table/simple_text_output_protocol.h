@@ -148,17 +148,17 @@ struct _SIMPLE_TEXT_OUTPUT_MODE {
 
     /** 現在のカーソル表示状態 */
     BOOLEAN                            CursorVisible;
-} ;
+};
 
 /** 
  * SIMPLE_TEXT_OUTPUT_MODEです
  */
-typedef _SIMPLE_TEXT_OUTPUT_MODE SIMPLE_TEXT_OUTPUT_MODE;
+typedef struct _SIMPLE_TEXT_OUTPUT_MODE SIMPLE_TEXT_OUTPUT_MODE;
 
 /** 
  * SIMPLE_TEXT_OUTPUTのプロトタイプ
  */
-typedef struct _EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL {
+struct _EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL {
     EFI_TEXT_RESET                           Reset;
     EFI_TEXT_STRING                          OutputString;
     EFI_TEXT_TEST_STRING                     TestString;
@@ -169,4 +169,9 @@ typedef struct _EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL {
     EFI_TEXT_SET_CURSOR_POSITION             SetCursorPosition;
     EFI_TEXT_ENABLE_CURSOR                   EnableCursor;
     SIMPLE_TEXT_OUTPUT_MODE                  *Mode;
-} EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL;
+};
+
+/** 
+ * SIMPLE_TEXT_OUTPUTプロトコルです
+ */
+typedef struct _EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL;

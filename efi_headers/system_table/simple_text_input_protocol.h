@@ -6,14 +6,24 @@
 
 #include "../type_define.h"
 
+/**
+ * _EFI_INPUT_KEYの前方宣言です
+*/
+struct _EFI_INPUT_KEY;
+
 /** 
  * EFI_INPUT_KEY
  * @details スキャンコードとUCS-2を入れられます。
  */
-typedef struct _EFI_INPUT_KEY {
+struct _EFI_INPUT_KEY {
     UINT16  ScanCode;
     CHAR16  UnicodeChar;
-} EFI_INPUT_KEY;
+};
+
+/**
+ * EFI_INPUT_KEYです
+*/
+typedef struct _EFI_INPUT_KEY EFI_INPUT_KEY;
 
 //仮定義しないと後方から参照がないと怒られる
 struct _EFI_SIMPLE_TEXT_INPUT_PROTOCOL;

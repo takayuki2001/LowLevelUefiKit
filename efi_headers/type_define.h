@@ -17,23 +17,46 @@
  */
 typedef unsigned char BOOLEAN;
 
-/** 
- * int native-(CPUのBit数/4) byte
- */
+
+
 #ifdef __X86
-typedef int INTN;
-#elif  __X64
-typedef long long INTN;
-#endif
 
 /** 
  * unsigned int native-(CPUのBit数/4) byte
  */
-#ifdef __X86
 typedef unsigned int UINTN;
+
+/** 
+ * unsigned int native-(CPUのBit数/4) byte
+ */
+typedef long long INTN;
+
 #elif  __X64
+
+/** 
+ * unsigned int native-(CPUのBit数/4) byte
+ */
 typedef unsigned long long UINTN;
+
+/** 
+ * int native-(CPUのBit数/4) byte
+ */
+typedef long long INTN;
+
+#else
+
+/** 
+ * unsigned int native-(CPUのBit数/4) byte
+ */
+typedef unsigned long long UINTN;
+
+/** 
+ * int native-(CPUのBit数/4) byte
+ */
+typedef long long INTN;
 #endif
+
+
 
 /** 
  * INT8-1byte
