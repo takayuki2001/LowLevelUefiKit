@@ -1,5 +1,4 @@
 #!/bin/bash
 
-sudo apt install qemu
-sudo apt install ovmf
-mkdir -p ../virtualSSD/EFI/BOOT/BOOTX64
+sudo apt install -y qemu-system-x86
+sudo apt install -y ovmf
