@@ -39,8 +39,13 @@ cd LowLevelUefiKit/tutorial/
 次に
 ``` bash
 sudo ./setup.sh
+sudo ./qemuSetup.sh
 ```
 を実行します。もしもパスワード入力が求められた場合は初回起動時に設定したパスワードを入力してください。
+
+``` bash
+cd ../
+```
 
 ### 
 
