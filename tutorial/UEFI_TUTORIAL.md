@@ -38,10 +38,7 @@ cd LowLevelUefiKit/tutorial/
 
 次に
 ``` bash
-sudo apt update
-sudo apt upgrade
-sudo apt install make
-sudo apt install mingw-w64
+sudo ./setup.sh
 ```
 を実行します。もしもパスワード入力が求められた場合は初回起動時に設定したパスワードを入力してください。
 
