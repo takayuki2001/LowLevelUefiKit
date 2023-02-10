@@ -32,17 +32,21 @@ WSLとUbuntuのインストールが終わったらUbuntuを起動していき�
 
 ``` bash
 git clone https://github.com/takayuki2001/LowLevelUefiKit.git
-cd LowLevelUefiKit/
+cd LowLevelUefiKit/tutorial/
 ```
 を実行します。
 
 次に
 ``` bash
 sudo apt update
+sudo apt upgrade
 sudo apt install make
+sudo apt install mingw-w64
 ```
 を実行します。もしもパスワード入力が求められた場合は初回起動時に設定したパスワードを入力してください。
+
 ### 
+
 
 ### 本文書について
 本文書に記載されている会社名、製品名はそれぞれ各社の商標及び登録商標です。本文書では™、®、©は割愛させて頂いております。
