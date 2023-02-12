@@ -16,7 +16,7 @@
 
 virtualSSD/
 
-!/LowLevelUefiKit.code-workspace
-!/.vscode/settings.json
-!/.vscode/c_cpp_properties.json
+!LowLevelUefiKit.code-workspace
+!.vscode/settings.json
+!.vscode/c_cpp_properties.json
 
