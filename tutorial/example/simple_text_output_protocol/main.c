@@ -1,5 +1,5 @@
-#include "efi_headers/type_define.h"
-#include "efi_headers/system_table.h"
+#include <efi_headers/type_define.h>
+#include <efi_headers/system_table.h>
 
 //-------------------------
 //

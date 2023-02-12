@@ -18,6 +18,10 @@
     #define __LLUK_ARCHITECTURE_64
 #else
     #error Unknown Architecture
+    
+    // 補完有効化の為のダミー定義
+    // 通常であれば上記マクロでコンパイル出来ない為問題なし
+    #define __LLUK_ARCHITECTURE_64
 #endif
 
 //////////////////////////////////////////////////////////////////////////////////////
