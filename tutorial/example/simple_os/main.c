@@ -3,6 +3,8 @@
 #include <efi_headers/system_table/simple_text_output_protocol.h>
 #include <efi_headers/system_table/simple_text_input_protocol.h>
 
+#define NULL 0
+
 //-------------------------
 //
 //      GlobalVariable
@@ -16,6 +18,148 @@ EFI_SYSTEM_TABLE *gSystemTable;
 //
 //-------------------------
 
+void print(CHAR16 str[]){
+    //文字を表示
+    gSystemTable->ConOut->OutputString(gSystemTable->ConOut, str);
+}
+
+UINTN strlen(CHAR16 str[]){
+    UINTN i = 0;
+    while(str[i++] == L'\0');
+    return i;
+}
+
+BOOLEAN strcmp(CHAR16 str[], CHAR16 str2[]){
+
+    if(strlen(str) - strlen(str2) == 0){
+        UINTN i = 0;
+        while (str[i] != L'\0')
+        {
+            if(str[i] != str2[i]){
+                return FALSE;
+            }
+
+            i++;
+        }
+
+        return TRUE;   
+    }
+
+    return FALSE;
+}
+
+/**
+ * 一行入力を受ける。
+*/
+CHAR16 getChar(){
+    //キー情報を格納する構造体　simple_text_input_protocol.hで定義
+    EFI_INPUT_KEY inputkey;
+
+    //戻り値格納用にresを定義
+    EFI_STATUS res;
+
+    //単文字列
+    CHAR16 schar[] = {'\0','\0'};
+
+    while (1){
+        //キーを取得する
+        res = gSystemTable->ConIn->ReadKeyStroke(gSystemTable->ConIn, &inputkey);
+
+        //EFI_SUCCESSが帰るときキーコードが格納される。
+        if(res == EFI_SUCCESS){
+
+            //短文字列の先頭に文字を挿入。
+            schar[0] = inputkey.UnicodeChar;
+
+            //文字を表示
+            print(schar);
+
+            return inputkey.UnicodeChar;
+        }
+    }
+}
+
+/**
+ * 一行入力を受ける。
+*/
+void getLine(CHAR16 str[]){
+
+    //入力カーソル
+    gSystemTable->ConOut->EnableCursor(gSystemTable->ConOut, TRUE);
+
+    //文字配列用index
+    UINTN i = 0;
+
+    //文字
+    CHAR16 c;
+
+    //単文字列
+    CHAR16 schar[] = {'\0','\0'};
+
+    while (1){
+        //キーを取得する
+        c = getChar();
+
+        //Enterキーが押された場合
+        if(c == '\r'){
+                print(L"\n");
+                //null文字を最後に入れておわり  
+                str[i] = '\0';
+                return;
+        }
+
+        //文字を配列に積む
+        str[i++] = c;
+        
+    }
+}
+
+void printStrArray(CHAR16* sugs[], int size){
+    for(int i = 0; i < size; i++){
+        print(sugs[i]);
+        print(L"  ");
+    }
+
+    print(L"\r\n");
+}
+
+int suggestLine(CHAR16 str[], CHAR16* sugs[], int size){
+
+    //入力カーソル
+    gSystemTable->ConOut->EnableCursor(gSystemTable->ConOut, TRUE);
+
+    //文字配列用index
+    UINTN i = 0;
+
+    //文字
+    CHAR16 c;
+
+    //単文字列
+    CHAR16 schar[] = {'\0','\0'};
+
+    while (1){
+        //キーを取得する
+        c = getChar();
+
+        if(c == L'\t'){
+            print(L"\r\n");
+            printStrArray(sugs, size);
+            return -1;
+        }
+
+        //Enterキーが押された場合
+        if(c == '\r'){
+                print(L"\n");
+                //null文字を最後に入れておわり  
+                str[i] = '\0';
+                return 0;
+        }
+
+        //文字を配列に積む
+        str[i++] = c;
+        
+    }
+}
 /**
  * 何か入力があるまで待機をする。
 */
@@ -29,6 +173,7 @@ void Wait4Anykey(){
     //EFI_SUCCESSが帰るときキーコードが格納される。
     while (gSystemTable->ConIn->ReadKeyStroke(gSystemTable->ConIn, &inputkey) != EFI_SUCCESS);
 }
+
 
 //-------------------------
 //
@@ -111,9 +256,39 @@ EFI_STATUS EFIAPI EfiMain (IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *Syste
     //文字を表示
     gSystemTable->ConOut->OutputString(gSystemTable->ConOut, L"BlueScreen!\r\n");
 
-    //Key入力待ち
-    Wait4Anykey();
+
+    ////////////////////////////////////
+    //
+    //
+    //              追加分
+    //
+    //
+    ////////////////////////////////////
+
+
+    //文字列
+    CHAR16 str[255];
+
+    //文字列を取得
+    //getLine(str);
+    CHAR16* sugs[] = {
+        L"ABC",
+        L"XYZ"
+    };
     
+    while(1){
+        print(L"user@local>");
+        suggestLine(str, sugs, 2);        
+    }
+
+    print(str);
+    print(L"\r\n");
+
+
+    
+    //待機
+    Wait4Anykey();
+
     return EFI_SUCCESS;
 }
 

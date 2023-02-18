@@ -3,7 +3,9 @@ CFLAGS = -shared -Wall -Wextra -nostdlib -fno-builtin -fno-stack-protector -mno-
 
 TARGETS = \
 	hello_world \
-	simple_text_output_protocol
+	simple_text_output_protocol \
+	simple_text_input_protocol \
+	simple_os
 
 EXAMPLE_PATH = ./example/
 

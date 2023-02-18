@@ -1,5 +1,6 @@
 # UEFIチュートリアル
 ## 必要な物
+1. WindowsPC
 1. PC操作の基本
 1. C言語の簡単な知識
 2. 新品のUSBメモリ（データの内容は消えます）
@@ -50,13 +51,13 @@ cd LowLevelUefiKit/tutorial/
 次に
 ``` bash
 sudo ./setup.sh
-sudo ./qemuSetup.sh
+make setup
 ```
 を実行します。もしもパスワード入力が求められた場合は初回起動時に設定したパスワードを入力してください。
 
 それが終わったら
 ``` bash
-./run.sh
+make hello_world
 ```
 を実行しUEFIアプリケーションを起動できます。
 
@@ -131,7 +132,7 @@ Hello LowLevelUefiKitが表示されたら成功です。
 
 （セキュアブートの無効化方法は機種によってかなり違います。その為PCを購入したお店やメーカーに問い合わせをしてください。）
 
-###　何故セキュアブートの無効化が必要か？
+### 何故セキュアブートの無効化が必要か？
 まずセキュアブートとは信頼された企業や団体以外のUEFIアプリケーション実行を拒否するものです。
 
 拒否する必要性はWindowsを暗号化して金銭要求するようなUEFIアプリケーションがあったとします。通常であればOSのセキュリティ機能などで検出がなされます。ですがUEFIアプリケーションはOSのセキュリティ機能の影響を受けません。その為UEFIアプリケーション悪さし放題なのです。これでは問題なので特定の企業や団体以外が作ったUEFIアプリケーションの実行はデフォルトで拒否されています。
@@ -148,7 +149,27 @@ Hello LowLevelUefiKitが表示されたら成功です。
 （本当に一部なので詳細は仕様書を見てみてください）
 
 ### OUTPUT
+Simple Text Output Protocolというものを使うとテキストを出力することが出来ます。プロトコルを実行することが出来ます。
+これは efi_headers/system_table/simple_text_output_protocol.hに定義されています。
 
+``` C
+/** 
+ * SIMPLE_TEXT_OUTPUTのプロトタイプ
+ */
+struct _EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL {
+    EFI_TEXT_RESET                           Reset;
+    EFI_TEXT_STRING                          OutputString;
+    EFI_TEXT_TEST_STRING                     TestString;
+    EFI_TEXT_QUERY_MODE                      QueryMode;
+    EFI_TEXT_SET_MODE                        SetMode;
+    EFI_TEXT_SET_ATTRIBUTE                   SetAttribute;
+    EFI_TEXT_CLEAR_SCREEN                    ClearScreen;
+    EFI_TEXT_SET_CURSOR_POSITION             SetCursorPosition;
+    EFI_TEXT_ENABLE_CURSOR                   EnableCursor;
+    SIMPLE_TEXT_OUTPUT_MODE                  *Mode;
+};
+```
+重要個所を抜粋してみました。EFI_TEXT_RESET～EFI_TEXT_ENABLE_CURSORまでの９個の関数とSIMPLE_TEXT_OUTPUT_MODEという一つの構造体が定義されています。
 
 ### INPUT
 

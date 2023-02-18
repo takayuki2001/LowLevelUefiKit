@@ -73,6 +73,8 @@
  * @details 0がFalse　1がTrue それ以外は未定義
  */
 typedef unsigned char BOOLEAN;
+#define FALSE 0
+#define TRUE  1
 
 
 /** 
