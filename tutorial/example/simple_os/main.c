@@ -18,6 +18,13 @@ EFI_SYSTEM_TABLE *gSystemTable;
 //
 //-------------------------
 
+void putch(CHAR16 ch){
+    //文字を表示
+    CHAR16 str[2] = {'\0', '\0'};
+    str[0] = ch;
+    gSystemTable->ConOut->OutputString(gSystemTable->ConOut, str);
+}
+
 void print(CHAR16 str[]){
     //文字を表示
     gSystemTable->ConOut->OutputString(gSystemTable->ConOut, str);
@@ -25,7 +32,9 @@ void print(CHAR16 str[]){
 
 UINTN strlen(CHAR16 str[]){
     UINTN i = 0;
-    while(str[i++] == L'\0');
+    while(str[i] != L'\0'){
+        i++;
+    }
     return i;
 }
 
@@ -48,10 +57,70 @@ BOOLEAN strcmp(CHAR16 str[], CHAR16 str2[]){
     return FALSE;
 }
 
+//836\ 5 -> i < 4
+void strswap(CHAR16 str[], int length){
+    length--;
+    length--;
+    
+    for(int i = 0; i <= length / 2; i++){
+        CHAR16 old = str[i];
+        str[i] = str[length - i];
+        str[length - i] = old;
+    }
+}
+
+int pow(int a, int n){
+    if(n == 1){
+        return a;
+    }
+
+    if(n == 0){
+        return 1;
+    }
+
+    int ret = 1;
+    while(n){
+        if (n & 1) {
+            ret *= a;
+        }
+
+        a *= a;
+
+        n >>= 1;
+    }
+
+    return ret;
+}
+
+int atoi(CHAR16 str[]){
+    int ret = 0;
+    int nonNullLen = strlen(str);
+
+    for(int i = 0; i < nonNullLen; i++){
+        ret += (str[nonNullLen - 1 - i] - '0') * pow(10, i);
+    }
+
+    return ret;
+}
+
+void itoa(CHAR16 str[], int i){
+    int c = 0;
+    int mod = 0;
+    do{
+        mod = i % 10;
+        str[c++] = mod + '0';
+        i = i / 10;
+    }while(i);
+
+     str[c++] = '\0';
+
+     strswap(str, c);
+}
+
 /**
  * 一行入力を受ける。
 */
-CHAR16 getChar(){
+CHAR16 getch(){
     //キー情報を格納する構造体　simple_text_input_protocol.hで定義
     EFI_INPUT_KEY inputkey;
 
@@ -98,13 +167,19 @@ void getLine(CHAR16 str[]){
 
     while (1){
         //キーを取得する
-        c = getChar();
+        c = getch();
+
+        //BSキーが押された場合
+        if(c == '\b'){
+            i--;
+            continue;
+        }
 
         //Enterキーが押された場合
-        if(c == '\r'){
+        if(c == L'\r'){
                 print(L"\n");
                 //null文字を最後に入れておわり  
-                str[i] = '\0';
+                str[i] = L'\0';
                 return;
         }
 
@@ -139,7 +214,7 @@ int suggestLine(CHAR16 str[], CHAR16* sugs[], int size){
 
     while (1){
         //キーを取得する
-        c = getChar();
+        c = getch();
 
         if(c == L'\t'){
             print(L"\r\n");
@@ -147,8 +222,14 @@ int suggestLine(CHAR16 str[], CHAR16* sugs[], int size){
             return -1;
         }
 
+        //BSキーが押された場合
+        if(c == L'\b'){
+            i--;
+            continue;
+        }
+
         //Enterキーが押された場合
-        if(c == '\r'){
+        if(c == L'\r'){
                 print(L"\n");
                 //null文字を最後に入れておわり  
                 str[i] = '\0';
@@ -160,6 +241,26 @@ int suggestLine(CHAR16 str[], CHAR16* sugs[], int size){
         
     }
 }
+
+int strSplit(CHAR16 str[], CHAR16 *args[]){
+
+    CHAR16 *start = str;
+    int point_count = 0;
+
+    args[point_count++] = start;
+
+    for(int i = 0;; i++){
+        if(str[i] == '\0'){
+            return point_count;
+        }
+        
+        if(str[i] == ' '){
+            str[i] = '\0';
+            args[point_count++] = &(str[i + 1]);
+        }
+    }
+}
+
 /**
  * 何か入力があるまで待機をする。
 */
@@ -254,7 +355,7 @@ EFI_STATUS EFIAPI EfiMain (IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *Syste
     gSystemTable->ConOut->SetCursorPosition(gSystemTable->ConOut, 30, 10);
 
     //文字を表示
-    gSystemTable->ConOut->OutputString(gSystemTable->ConOut, L"BlueScreen!\r\n");
+    gSystemTable->ConOut->OutputString(gSystemTable->ConOut, L"BlueScreenOS!\r\n");
 
 
     ////////////////////////////////////
@@ -270,15 +371,85 @@ EFI_STATUS EFIAPI EfiMain (IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *Syste
     CHAR16 str[255];
 
     //文字列を取得
-    //getLine(str);
+    //getLine(str);A
     CHAR16* sugs[] = {
-        L"ABC",
-        L"XYZ"
+        L"echo_str...",
+        L"bc_a_op_b",
+        L"ping_args..."
     };
     
     while(1){
         print(L"user@local>");
-        suggestLine(str, sugs, 2);        
+        suggestLine(str, sugs, 3);
+
+        CHAR16 *args[255];
+        int args_count = strSplit(str, args);
+ 
+        if(strcmp(args[0], L"echo")){
+            print(L">");
+            for(int i = 1; i < args_count; i++){
+                print(args[i]);
+                print(L" ");
+            }
+            print(L"\r\n");
+        } 
+
+        if(strcmp(args[0], L"bc")){
+            if(args_count == 4){
+                int a = atoi(args[1]);
+                CHAR16* operator = args[2];
+                int b = atoi(args[3]);
+                int ret = 0;
+
+                switch (operator[0]) {
+                case L'+':
+                    // 加算の処理
+                    ret = a + b;
+                    break;
+                case L'-':
+                    // 減算の処理
+                    ret = a - b;
+                    break;
+                case L'*':
+                    // 乗算の処理
+                    ret = a * b;
+                    break;
+                case L'/':
+                    // 除算の処理
+                    ret = a / b;
+                    break;
+                case L'%':
+                    // modの処理
+                    ret = a % b;
+                    break;
+                default:
+                    // 想定外の演算子が与えられた場合の処理
+                    print(L"Operator error[");
+                    print(args[2]);
+                    print(L"]");
+                    goto bc_end;
+                    break;
+                }
+
+                CHAR16 xstr[255];
+                itoa(xstr, ret);
+                print(xstr);
+            }else{
+                print(L"The number of arguments seems a bit wonky. Please check and try again.");
+            }
+
+            bc_end:
+            print(L"\r\n");
+        }
+
+        if(strcmp(args[0], L"ping")){
+            print(L"                    _    Ping says.\r\n");
+            print(L"   __------__     (  \\    Open cmd on Windows and type 'ping'.\r\n");
+            print(L"  /          \\    |  |    Are you sure?\r\n");
+            print(L" ( ( .)   ( .) )  |  | \r\n");
+            print(L"  >    []     <   /  / \r\n");
+            print(L" /             \\/  /  \r\n");
+        }
     }
 
     print(str);
