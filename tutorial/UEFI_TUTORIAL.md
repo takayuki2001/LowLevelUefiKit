@@ -171,9 +171,188 @@ struct _EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL {
 ```
 重要個所を抜粋してみました。EFI_TEXT_RESET～EFI_TEXT_ENABLE_CURSORまでの９個の関数とSIMPLE_TEXT_OUTPUT_MODEという一つの構造体が定義されています。
 
-### INPUT
+UEFIにおいてはこのような構造体を活用してプログラムを作成していくことになります。
 
-### グラフィック
+このsimple_text_output_protocolをフル活用したサンプルプログラムをsimple_text_output_protocolの下にmain.cとして用意しました。
+ここからはこれをベースに解説をしていきます。
+
+早速ですがおまじないがあります。それはWait4Anykey関数です。これは次で解説をするsimple_text_input_protocolを活用しているので解説は少々お待ちください。動作としては何かキーが押されるまで待機するというメッセージ出力とそのメッセージ通り何かキーが押されるまで待機するだけです。
+
+``` C
+    //画面をリセット
+    gSystemTable->ConOut->Reset(gSystemTable->ConOut, FALSE);
+```
+を用いてコンソール画面を初期化しています。
+
+``` C
+    //戻り値格納用にresを定義
+    EFI_STATUS res;
+
+    //文字列を表示できるか確認
+    res = gSystemTable->ConOut->TestString(gSystemTable->ConOut, L"ようこそ！ LowLevelUefiKit\r\n");
+``` 
+EFI_STATUS res;は戻り値を格納するための変数です。例えばEFI_SUCCESSなどが入ります。
+TestString関数は引数で与えられた文字列が表示可能か（フォントが存在しているか）を確認します。
+つまりその次のif(res == EFI_SUCCESS){では日本語フォントが存在しているかを判定した結果が判定成功であれば日本語文メッセージを表示しています。（英字フォントは当然として存在しているものとしています。）
+
+``` C
+    //指定したモードに対応しているかを確認する。
+    //Mode 0は80x25　Mode 1は80x50　Mode 2以降は独自定義
+    //Mode　2以降ではcolとrowの値を参考にしよう！
+    UINTN mode = 0;
+    UINTN col = 0;
+    UINTN row = 0;
+    res = gSystemTable->ConOut->QueryMode(gSystemTable->ConOut, mode, &col, &row);
+    if(res == EFI_SUCCESS){
+```
+QueryModeは指定したクエリモードに対応しているかを調べる関数になります。ここでいうクエリモードとは80x25の文字表示コンソールや80x50コンソールなどコンソールの行列のことを指します。ここではモード0である80x25の文字表示に対応をしているか調べています。もし80x50以上の行列に対応している場合はベンダー独自で2番以降が割り当てられそのモードの行列は引数で返されます。
+
+``` C
+        //入力待ちのカーソル
+        gSystemTable->ConOut->EnableCursor(gSystemTable->ConOut, TRUE);
+        //Key入力待ち
+        Wait4Anykey();
+        //入力待ちのカーソル
+        gSystemTable->ConOut->EnableCursor(gSystemTable->ConOut, FALSE);
+        
+         //Modeチェンジ！
+        gSystemTable->ConOut->SetMode(gSystemTable->ConOut, mode);
+```
+ではEnableCursorを用いてコンソールカーソルをONにしてキー入力を待ちます。そしてカーソルをOFFを切り替えています。その後SetMode関数を用いてコンソールをモード0に設定しています。この際明確な規定はありませんがコンソールはリセットされます。
+
+``` C
+    //文字の色属性
+    UINTN Attribute;
+    //文字色ルール
+    //文字色　0000->黒 0001->青　0010->緑　0100->赤　0111->白 1000->明るい黒　明るさRGBで定義されます。
+    //背景色　 000->黒　001->青　 010->緑 　100->赤 　111->白                RGBで定義
+    //文字色と背景色のルール 背景色　0b000----　文字色　0b---0000
+    //          文字色 背景色
+    Attribute = 0b1111 | (0b001 << 4);
+
+    //文字色と背景色設定を適応
+    gSystemTable->ConOut->SetAttribute(gSystemTable->ConOut, Attribute);
+```
+ではコンソールの色を設定しています。色オプションは計7bitで表します。下位4bitは文字色を表し上位3bitで背景色を表します。文字色の表し方は（明暗）（R）（G）（B）となり、背景色では明暗が消え、（R）（G）（B）となります。尚、光の三原色です。このルールで定めたオプションをSetAttribute関数で適応しています。
+
+``` C
+    //画面クリア
+    gSystemTable->ConOut->ClearScreen(gSystemTable->ConOut);
+```
+では現在のコンソールをクリアします。色を設定後にクリアすることで背景色と文字色を適応しつつ画面をクリアしています。
+
+``` C
+    //カーソルを雰囲気中央に移動
+    gSystemTable->ConOut->SetCursorPosition(gSystemTable->ConOut, 30, 10);
+
+    //文字を表示
+    gSystemTable->ConOut->OutputString(gSystemTable->ConOut, L"BlueScreen!\r\n");
+```
+ではコンソールのカーソルを雰囲気真ん中に移動させます（Mode 0は80x25であるため）。そして雰囲気真ん中にL"BlueScreen!\r\n"を表示しています。
+
+SIMPLE_TEXT_OUTPUT構造体の中で解説していないものはSIMPLE_TEXT_OUTPUT_MODE　*Mode;のみとなりましたが、これは現在のモードの情報が格納されています。
+
+以上でOUTPUTの解説は以上となります。
+
+### INPUT
+Simple Text Input Protocolというものを使うとテキストを出力することが出来ます。プロトコルを実行することが出来ます。
+これは efi_headers/system_table/simple_text_input_protocol.hに定義されています。
+
+``` C
+/** 
+ * SIMPLE_TEXT_INPUTのプロトタイプ
+ */
+typedef struct _EFI_SIMPLE_TEXT_INPUT_PROTOCOL {
+    EFI_INPUT_RESET                       Reset;
+    EFI_INPUT_READ_KEY                    ReadKeyStroke;
+    EFI_EVENT                             WaitForKey;
+} EFI_SIMPLE_TEXT_INPUT_PROTOCOL;
+```
+重要個所を抜粋してみました。今回は２個の関数と1つのイベントを持つ構造体が定義されています。
+Reset関数は入力デバイスをリセットします。ReadKeyStrokey関数では今この瞬間に押されているキーを取得します。
+EFI_EVENT WaitForKeyは別で定義されているイベントシステムに渡すための引数です。
+
+このsimple_text_input_protocolを活用したサンプルプログラムをsimple_text_input_protocolの下にmain.cとして用意しました。
+ここからはこれをベースに解説をしていきます。
+
+getLine関数を見てみましょう！
+
+``` C
+    //キー情報を格納する構造体　simple_text_input_protocol.hで定義
+    EFI_INPUT_KEY inputkey;
+
+    //戻り値格納用にresを定義
+    EFI_STATUS res;
+
+    //単文字列
+    CHAR16 schar[] = {'\0','\0'};
+
+    //入力カーソル
+    gSystemTable->ConOut->EnableCursor(gSystemTable->ConOut, TRUE);
+```
+EFI_INPUT_KEY inputkey;ではキー情報を格納する構造体を作っています。
+
+``` C
+/** 
+ * EFI_INPUT_KEY
+ * @details スキャンコードとUCS-2を入れられます。
+ */
+struct _EFI_INPUT_KEY {
+    UINT16  ScanCode;
+    CHAR16  UnicodeChar;
+};
+```
+EFI_INPUT_KEYは上記のように定義され、スキャンコードとユニコードが格納されています。
+CHAR16 schar[] = {'\0','\0'};では一文字のみ格納するような文字列を作成しています。
+そのほかは説明済みなので省略します。
+
+``` C
+        //キーを取得する
+        res = gSystemTable->ConIn->ReadKeyStroke(gSystemTable->ConIn, &inputkey);
+
+        //EFI_SUCCESSが帰るときキーコードが格納される。
+        if(res == EFI_SUCCESS){
+```
+ではReadKeyStrokeを用いてこの関数が実行された瞬間のキー情報を取得します。ですがこの関数の実行時、何もキーが押されていない場合はエラーとして戻ります。そこでEFI_SUCCESSか比較することでキーが押されたかを判定します。ただし、一度読み込まれたキーは離されて再度押されるまでEFI_SUCCESSを返すことはないため一瞬のキープッシュで大量の文字が打たれることはありません。
+
+``` C
+            //短文字列の先頭に文字を挿入。
+            schar[0] = inputkey.UnicodeChar;
+
+            //文字を表示
+            gSystemTable->ConOut->OutputString(gSystemTable->ConOut, schar);
+```
+構造体に入っているUnicodeを文字列として扱うためにschar[0]に代入をしそれを表示しています。
+これは入力されたキーを表示しユーザーにフィードバックを与えています。
+
+``` C
+            //文字を配列に積む
+            str[i++] = inputkey.UnicodeChar;
+```
+そして文字列を受け取るバッファに対して受け取った文字を挿入しています。
+
+``` C
+            //Enterキーが押された場合
+            if(inputkey.UnicodeChar == '\r'){
+                //短文字列の先頭に文字を挿入。
+                schar[0] = '\n';
+
+                //文字を表示
+                gSystemTable->ConOut->OutputString(gSystemTable->ConOut, schar);
+
+                //null文字を最後に入れておわり
+                str[i] = '\0';
+                return;
+            }
+```
+もし文字入力の中でエンターキーが押された場合は\r（エンターキー）は出力されているので足りていない\nを追加で表示し、null文字をバッファの最後に入れます。
+
+### Let's make OS!
+それでは今までの知見を生かしていくつかの動作を提供するようなOSを作成してみましょう。
+
+やはりサンプルプログラムをsimple_osの下にmain.cとして用意しました。
+
+基本的に関数整備を行っています。Cの標準ライブラリに沿ったような関数になっていますので各自で動作を確認してみてください。
 
 ## 最後に
 実際に今回得た知識が即時就職活動や業務で活きる機会はないと思います。ですがコンピューターの構造や起動プロセスを知り考えることは新しいプログラミング技法の発見や新しいプロダクトのアイデア、外注時注意したい項目の洗い出し、アルゴリズムを超えた＋αの高速化などアドバンテージを取るのに役に立つと思います！！

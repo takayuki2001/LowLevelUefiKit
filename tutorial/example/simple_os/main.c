@@ -18,15 +18,21 @@ EFI_SYSTEM_TABLE *gSystemTable;
 //
 //-------------------------
 
-void putch(CHAR16 ch){
-    //文字を表示
+/**
+ * 1文字出力
+*/
+VOID putch(CHAR16 ch){
+    //1文字表示するための文字列を用意
     CHAR16 str[2] = {'\0', '\0'};
     str[0] = ch;
     gSystemTable->ConOut->OutputString(gSystemTable->ConOut, str);
 }
 
-void print(CHAR16 str[]){
-    //文字を表示
+/**
+ * 文字列出力
+*/
+VOID puts(CHAR16 str[]){
+    //文字列を表示
     gSystemTable->ConOut->OutputString(gSystemTable->ConOut, str);
 }
 
@@ -57,19 +63,24 @@ BOOLEAN strcmp(CHAR16 str[], CHAR16 str2[]){
     return FALSE;
 }
 
-//836\ 5 -> i < 4
-void strswap(CHAR16 str[], int length){
+/**
+ * 文字列をリバースする
+*/
+VOID strswap(CHAR16 str[], UINTN length){
     length--;
     length--;
     
-    for(int i = 0; i <= length / 2; i++){
+    for(UINTN i = 0; i <= length / 2; i++){
         CHAR16 old = str[i];
         str[i] = str[length - i];
         str[length - i] = old;
     }
 }
 
-int pow(int a, int n){
+/**
+ * a^nを計算する
+*/
+INTN pow(INTN a, INTN n){
     if(n == 1){
         return a;
     }
@@ -78,7 +89,7 @@ int pow(int a, int n){
         return 1;
     }
 
-    int ret = 1;
+    INTN ret = 1;
     while(n){
         if (n & 1) {
             ret *= a;
@@ -92,20 +103,20 @@ int pow(int a, int n){
     return ret;
 }
 
-int atoi(CHAR16 str[]){
-    int ret = 0;
-    int nonNullLen = strlen(str);
+INTN atoi(CHAR16 str[]){
+    INTN ret = 0;
+    UINTN nonNullLen = strlen(str);
 
-    for(int i = 0; i < nonNullLen; i++){
+    for(UINTN i = 0; i < nonNullLen; i++){
         ret += (str[nonNullLen - 1 - i] - '0') * pow(10, i);
     }
 
     return ret;
 }
 
-void itoa(CHAR16 str[], int i){
-    int c = 0;
-    int mod = 0;
+VOID itoa(CHAR16 str[], INTN i){
+    INTN c = 0;
+    INTN mod = 0;
     do{
         mod = i % 10;
         str[c++] = mod + '0';
@@ -118,7 +129,7 @@ void itoa(CHAR16 str[], int i){
 }
 
 /**
- * 一行入力を受ける。
+ * 一文字を受ける。
 */
 CHAR16 getch(){
     //キー情報を格納する構造体　simple_text_input_protocol.hで定義
@@ -127,9 +138,6 @@ CHAR16 getch(){
     //戻り値格納用にresを定義
     EFI_STATUS res;
 
-    //単文字列
-    CHAR16 schar[] = {'\0','\0'};
-
     while (1){
         //キーを取得する
         res = gSystemTable->ConIn->ReadKeyStroke(gSystemTable->ConIn, &inputkey);
@@ -137,12 +145,8 @@ CHAR16 getch(){
         //EFI_SUCCESSが帰るときキーコードが格納される。
         if(res == EFI_SUCCESS){
 
-            //短文字列の先頭に文字を挿入。
-            schar[0] = inputkey.UnicodeChar;
-
             //文字を表示
-            print(schar);
-
+            puts(schar);
             return inputkey.UnicodeChar;
         }
     }
@@ -151,7 +155,7 @@ CHAR16 getch(){
 /**
  * 一行入力を受ける。
 */
-void getLine(CHAR16 str[]){
+VOID getLine(CHAR16 str[]){
 
     //入力カーソル
     gSystemTable->ConOut->EnableCursor(gSystemTable->ConOut, TRUE);
@@ -161,9 +165,6 @@ void getLine(CHAR16 str[]){
 
     //文字
     CHAR16 c;
-
-    //単文字列
-    CHAR16 schar[] = {'\0','\0'};
 
     while (1){
         //キーを取得する
@@ -177,7 +178,7 @@ void getLine(CHAR16 str[]){
 
         //Enterキーが押された場合
         if(c == L'\r'){
-                print(L"\n");
+                puts(L"\n");
                 //null文字を最後に入れておわり  
                 str[i] = L'\0';
                 return;
@@ -189,16 +190,23 @@ void getLine(CHAR16 str[]){
     }
 }
 
-void printStrArray(CHAR16* sugs[], int size){
-    for(int i = 0; i < size; i++){
-        print(sugs[i]);
-        print(L"  ");
+/**
+ * 文字列配列を空白区切りで表示する
+*/
+VOID putsStrArray(CHAR16* sugs[], UINTN size){
+    for(UINTN i = 0; i < size; i++){
+        puts(sugs[i]);
+        puts(L"  ");
     }
 
-    print(L"\r\n");
+    puts(L"\r\n");
 }
 
-int suggestLine(CHAR16 str[], CHAR16* sugs[], int size){
+/**
+ * タブキーを入力途中に押されると文字列配列を表示するgetLine
+ * タブキーが押されたら-1で異常終了。
+*/
+INTN suggestLine(CHAR16 str[], CHAR16* sugs[], int size){
 
     //入力カーソル
     gSystemTable->ConOut->EnableCursor(gSystemTable->ConOut, TRUE);
@@ -217,7 +225,7 @@ int suggestLine(CHAR16 str[], CHAR16* sugs[], int size){
         c = getch();
 
         if(c == L'\t'){
-            print(L"\r\n");
+            puts(L"\r\n");
             printStrArray(sugs, size);
             return -1;
         }
@@ -230,7 +238,7 @@ int suggestLine(CHAR16 str[], CHAR16* sugs[], int size){
 
         //Enterキーが押された場合
         if(c == L'\r'){
-                print(L"\n");
+                puts(L"\n");
                 //null文字を最後に入れておわり  
                 str[i] = '\0';
                 return 0;
@@ -242,14 +250,17 @@ int suggestLine(CHAR16 str[], CHAR16* sugs[], int size){
     }
 }
 
-int strSplit(CHAR16 str[], CHAR16 *args[]){
+/**
+ * スペース区切り文字列を文字列配列に変換する
+*/
+INTN strSplit(CHAR16 str[], CHAR16 *args[]){
 
     CHAR16 *start = str;
-    int point_count = 0;
+    UINTN point_count = 0;
 
     args[point_count++] = start;
 
-    for(int i = 0;; i++){
+    for(UINTN i = 0;; i++){
         if(str[i] == '\0'){
             return point_count;
         }
@@ -264,7 +275,7 @@ int strSplit(CHAR16 str[], CHAR16 *args[]){
 /**
  * 何か入力があるまで待機をする。
 */
-void Wait4Anykey(){
+VOID Wait4Anykey(){
     //キー情報を格納する構造体　simple_text_input_protocol.hで定義
     EFI_INPUT_KEY inputkey;
 
@@ -367,40 +378,66 @@ EFI_STATUS EFIAPI EfiMain (IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *Syste
     ////////////////////////////////////
 
 
-    //文字列
-    CHAR16 str[255];
 
-    //文字列を取得
-    //getLine(str);A
+    //コマンドラインでタブを押したときに出る候補のコマンド一覧
     CHAR16* sugs[] = {
         L"echo_str...",
         L"bc_a_op_b",
-        L"ping_args..."
+        L"ping_args...",
+        L"exit"
     };
-    
+
+    //文字列
+    CHAR16 str[255];
+
+    //コマンド引数格納用配列
+    CHAR16 *args[255];
+
+    //コマンド受付のメインループ
     while(1){
-        print(L"user@local>");
-        suggestLine(str, sugs, 3);
 
-        CHAR16 *args[255];
-        int args_count = strSplit(str, args);
- 
+        //入力を促すメッセージ
+        puts(L"user@local>");
+
+        //入力を求める　入力バッファ、コマンド候補一覧、コマンド候補の数
+        suggestLine(str, sugs, 4);
+
+        //入力されたコマンドを分割して引数一覧に格納する
+        UINTN args_count = strSplit(str, args);
+
+        //引数の0番目がechoならば
         if(strcmp(args[0], L"echo")){
-            print(L">");
-            for(int i = 1; i < args_count; i++){
-                print(args[i]);
-                print(L" ");
+            //＞を出力する
+            puts(L">");
+
+            //引数１以降をスペース区切りで表示
+            for(UINTN i = 1; i < args_count; i++){
+                puts(args[i]);
+                puts(L" ");
             }
-            print(L"\r\n");
-        } 
 
-        if(strcmp(args[0], L"bc")){
+            //改行をする
+            puts(L"\r\n");
+
+        //引数の0番目がbcならば
+        } else if(strcmp(args[0], L"bc")){
+
+            //引数の数が4個であるとき
             if(args_count == 4){
-                int a = atoi(args[1]);
-                CHAR16* operator = args[2];
-                int b = atoi(args[3]);
-                int ret = 0;
 
+                //引数1をaに代入
+                INTN a = atoi(args[1]);
+
+                //オペレーターとして引数2のポインタを代入
+                CHAR16* operator = args[2];
+
+                //引数2をbに代入
+                INTN b = atoi(args[3]);
+                
+                //計算後の結果を格納するretを用意
+                INTN ret = 0;
+
+                //オペレータの1文字目で分岐
                 switch (operator[0]) {
                 case L'+':
                     // 加算の処理
@@ -424,42 +461,52 @@ EFI_STATUS EFIAPI EfiMain (IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *Syste
                     break;
                 default:
                     // 想定外の演算子が与えられた場合の処理
-                    print(L"Operator error[");
-                    print(args[2]);
-                    print(L"]");
+                    puts(L"Operator error[");
+                    puts(args[2]);
+                    puts(L"]");
                     goto bc_end;
                     break;
                 }
 
+                //int からcharに変換後に代入されるバッファ
                 CHAR16 xstr[255];
+
+                //intからcharに変換　バッファ　int
                 itoa(xstr, ret);
-                print(xstr);
+
+                //計算結果を表示
+                puts(xstr);
             }else{
-                print(L"The number of arguments seems a bit wonky. Please check and try again.");
+                //引数の数が違う場合
+                puts(L"The number of arguments seems a bit wonky. Please check and try again.");
             }
 
             bc_end:
-            print(L"\r\n");
+            puts(L"\r\n");
         }
 
+        //pingコマンドであれば
         if(strcmp(args[0], L"ping")){
-            print(L"                    _    Ping says.\r\n");
-            print(L"   __------__     (  \\    Open cmd on Windows and type 'ping'.\r\n");
-            print(L"  /          \\    |  |    Are you sure?\r\n");
-            print(L" ( ( .)   ( .) )  |  | \r\n");
-            print(L"  >    []     <   /  / \r\n");
-            print(L" /             \\/  /  \r\n");
+            puts(L"                    _    Ping says.\r\n");
+            puts(L"   __------__     (  \\    Open cmd on Windows and type 'ping'.\r\n");
+            puts(L"  /          \\    |  |    Are you sure?\r\n");
+            puts(L" ( ( .)   ( .) )  |  | \r\n");
+            puts(L"  >    []     <   /  / \r\n");
+            puts(L" /             \\/  /  \r\n");
         }
+
+        
+        //pingコマンドであれば
+        if(strcmp(args[0], L"exit")){
+            puts(L"Bye.\r\n");
+            break;
+        }
+
+    //メインループのためここでループ先頭に戻り次の入力を待機する。
     }
 
-    print(str);
-    print(L"\r\n");
-
-
-    
     //待機
     Wait4Anykey();
 
     return EFI_SUCCESS;
 }
-

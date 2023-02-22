@@ -40,11 +40,11 @@ EFI_STATUS EFIAPI EfiMain (IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *Syste
     //受け取ったSystemTableをグループにコピー
     gSystemTable = SystemTable;
 
-    //戻り値格納用にresを定義
-    EFI_STATUS res;
-
     //画面をリセット
     gSystemTable->ConOut->Reset(gSystemTable->ConOut, FALSE);
+
+    //戻り値格納用にresを定義
+    EFI_STATUS res;
 
     //文字列を表示できるか確認
     res = gSystemTable->ConOut->TestString(gSystemTable->ConOut, L"ようこそ！ LowLevelUefiKit\r\n");
