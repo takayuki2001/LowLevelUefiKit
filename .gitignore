@@ -1,6 +1,5 @@
 .vs
 .vscode/*
-*.code-workspace
 .history/
 
 *.efi
