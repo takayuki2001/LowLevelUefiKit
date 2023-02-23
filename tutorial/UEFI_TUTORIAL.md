@@ -296,14 +296,14 @@ QueryModeは指定したクエリモードに対応しているかを調べる�
     //文字を表示
     gSystemTable->ConOut->OutputString(gSystemTable->ConOut, L"BlueScreen!\r\n");
 ```
-ではコンソールのカーソルを雰囲気真ん中に移動させます（Mode 0は80x25であるため）。そして雰囲気真ん中に`L"BlueScreen!\r\n"`を表示しています。
+ではコンソールのカーソルを大体真ん中に移動させます（Mode 0は80x25であるため）。そして雰囲気真ん中に`L"BlueScreen!\r\n"`を表示しています。
 
 SIMPLE_TEXT_OUTPUT構造体の中で解説していないものは`SIMPLE_TEXT_OUTPUT_MODE　*Mode;`のみとなりましたが、これは現在のモードの情報が格納されています。
 
 以上でOUTPUTの解説は以上となります。
 
 ### INPUT
-Simple Text Input Protocolというものを使うとテキストを出力することが出来ます。プロトコルを実行することが出来ます。
+Simple Text Input Protocolというものを使うと入力をすることが出来ます。プロトコルを実行することが出来ます。
 これは __LowLevelUefiKit/efi_headers/system_table/simple_text_input_protocol.h__ に定義されています。
 
 このSimple Text Input Protocolを活用したサンプルプログラムを __LowLevelUefiKit/tutorial/example/simple_text_output_protocol/main.c__ として用意しました。
