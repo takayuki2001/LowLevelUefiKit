@@ -307,7 +307,7 @@ SIMPLE_TEXT_OUTPUT構造体の中で解説していないものは`SIMPLE_TEXT_O
 ### INPUT
 Simple Text Input Protocolというものを使うと入力をすることが出来ます。プロトコルを実行することが出来ます。
 
-このSimple Text Input Protocolを活用したサンプルプログラムを __LowLevelUefiKit/tutorial/example/simple_text_output_protocol/main.c__ として用意しました。
+このSimple Text Input Protocolを活用したサンプルプログラムを __LowLevelUefiKit/tutorial/example/simple_text_input_protocol/main.c__ として用意しました。
 ここからはこれをベースに解説をしていきます。
 
 ``` bash
