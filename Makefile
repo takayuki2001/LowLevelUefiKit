@@ -8,6 +8,7 @@ BOOTX64.dll: main.c
 
 BOOTX64.EFI: BOOTX64.dll
 	objcopy --target=efi-app-x86_64 $< $@
+	rm -f BOOTX64.dll
 
 clean:
 	rm -f BOOTX64.EFI
