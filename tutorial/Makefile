@@ -30,6 +30,7 @@ all:
 	@echo $< : $@
 	mkdir -p ./virtualSSD/EFI/BOOT/
 	cp $(EXAMPLE_PATH)$(basename $<)/$< ./virtualSSD/EFI/BOOT/BOOTX64.EFI
+	cp $(EXAMPLE_PATH)$(basename $<)/$< ./BOOTX64.EFI
 
 $(TARGETS): %: %.QemuInstall
 	make run
@@ -42,6 +43,7 @@ clean:
 	rm -rd ./virtualSSD
 	rm $(EXAMPLE_PATH)/*/*.EFI
 	rm $(EXAMPLE_PATH)/*/*.dll
+	rm *.EFI
 
 
 TARGET_PACKAGE = make

@@ -5,6 +5,8 @@
 1. C言語の簡単な知識
 2. 新品のUSBメモリ（データの内容は消えます）
 3. セキュアブートが無効化できるPC
+1. Visual Studio Code（以下VS Code）
+1. 知らない単語・分からない箇所が出てきたら　○○とは、○○のやり方、などで検索が行える能力
 
 ### あると便利な物
 1. サブのPC
@@ -34,10 +36,10 @@ OSがソフトウェア管理などを行ってくれることが分かりまし
 UEFIは上記の通りOSよりも下にあり、情報が少ない分野です。ですがUEFIはOS起動までの仕事を担っておりその役割は単純ですが重要です。そんなUEFIアプリケーションを作ることを通じてセキュリティやプログラム実行の仕組み・C言語について深く学べる数少ない教材であり、各ソフトウェアの国産化を目指すのであれば決して無視できない領域です。
 
 ### WSLのセットアップ
-Windows Subsystem for Linux 通称WSLという機能があります。今回はこれを用いて作業をしていきます。そこでまずWSLのセットアップを行う必要があります。2023年1月現在ではMicrosoft Storeの検索からWSLを検索しWindows Subsystem for Linuxをインストール後にUbuntuと検索をしUbuntuもインストールします。更に機能の追加から仮想マシンプラットフォームを有効化しましょう。この３つのインストールが終わったら再起動をして完了です。
+Windows Subsystem for Linux 通称WSLという機能があります。今回はこれを用いて作業をしていきます。そこでまずWSLのセットアップを行う必要があります。2023年1月現在では　__Microsoft Store__　の検索からWSLを検索し　__Windows Subsystem for Linux__　をインストール後に__Ubuntu__　と検索をし　__Ubuntu__　もインストールします。更に　__Windows の機能の有効化または無効化__　から　__仮想マシンプラットフォーム__　を有効化しましょう。この３つのインストールが終わったら再起動をして完了です。
 
 ### Ubuntuの起動
-WSLとUbuntuのインストールが終わったらUbuntuを起動していきます。初回起動時にユーザー名とパスワードの設定を求められるのでこのパスワードを忘れずに覚えておいてください（パスワード入力中は＊＊＊など入力のサインはありません）。
+WSLとUbuntuのインストールが終わったらUbuntuを起動していきます。　__初回起動時にユーザー名とパスワードの設定を求められるのでこのパスワードを忘れずに覚えておいてください__　__（パスワード入力中は＊＊＊など入力のサインはありません）。__
 
 ### 各種環境設定
 セットアップが終了したら
@@ -60,45 +62,67 @@ make setup
 make hello_world
 ```
 を実行しUEFIアプリケーションを起動できます。
+その後は立ち上がったUEFIアプリケーションではなくWSLの画面で __q__ を入力し終了させましょう。
 
 ### UEFIアプリケーションにおける文字表示のプロセスを確認しよう。
-\\wsl$\Ubuntu\home\user_name\LowLevelUefiKit
+`\\wsl$\Ubuntu\home\user_name\LowLevelUefiKit`
 をExplorerのアドレスバーに入力するとWindows上でフォルダを開く事が出来ます。
+**Warning**
+ディレクトリアドレスにある`user_name`は適宜設定したユーザー名に置き換えてください。
 
-そしてその中にあるmain.cを開いてみましょう。
+そして __LowLevelUefiKit.code-workspace__ をVS Codeで開きましょう。
+
+`LowLevelUefiKit/tutorial/example/hello_world/main.c`を開いてみましょう。
 
 まずIncludeから確認をしていきます。
-#include "efi_headers/type_define.h"
-#include "efi_headers/system_table.h"
+``` C
+#include <efi_headers/type_define.h>
+#include <efi_headers/system_table.h>
+```
 この二つのみがインクルードされています。
-まず上部のtype_define.hでは型のtypedefが大量に並んでいます。
+まず上部の __type_define.h__ (場所: __LowLevelUefiKit/efi_headers/table_header.h__ )では型のtypedefが大量に並んでいます。
 又、INやOUTといった修飾子マクロも定義されています。
 
-system_table.hでは構造体が定義されています。詳細は後述します。
-
-ここで注目したいのはstdio等の標準ライブラリは一切使用されていない事です。
+__system_table.h__ (場所: __LowLevelUefiKit/efi_headers/system_table.h__ )では構造体が定義されています。詳細は後述します。
+ここで注目したいのは __stdio.h__ 等の標準ライブラリは一切使用されていない事です。
 
 次に来るのはグローバル変数
+``` C
 EFI_SYSTEM_TABLE *gSystemTable;
+```
 です。
 
-これはsystem_table.hで定義されているEFI_SYSTEM_TABLEのポインタです。
+これはsystem_table.hで定義されている構造体 __EFI_SYSTEM_TABLE__ のポインタ格納用変数です。UEFIではEFI_SYSTEM_TABLE構造体を大変よく使います。そこでグローバル変数としてソースコード全体で使えるように定義しています。
 
-次はEfiMain関数です。これは通常のmain関数に相当します。
+次は __EfiMain__ 関数です。これは通常のmain関数に相当します。
+``` C
 EFI_STATUS EFIAPI EfiMain (IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *SystemTable)
-通常であれば引数へのポインタが渡されますがUEFIアプリケーションではEFI_HANDLEとEFI_SYSTEM_TABLEへのポインタがマザーボードより渡されます。
+```
+main関数の引数に対し通常であれば引数へのポインタが渡されますがUEFIアプリケーションでは __EFI_HANDLE__ と __EFI_SYSTEM_TABLE__ へのポインタがマザーボードより渡されます。EFI_HANDLEは本書で使用しないため解説をしません。
 
 次は
+``` C
 gSystemTable = SystemTable;
-です。これは単純にグローバルにポインタを保存しています。
+```
+です。これは単純に受け取った引数をグローバルポインタとして保存しています。
 
 次にここで文字列を表示しています。
+``` C
 gSystemTable->ConOut->OutputString(gSystemTable->ConOut, L"Hello LowLevelUefiKit");
-EFI_SYSTEM_TABLE構造体のConOut(EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL)のOutputString関数を呼び出しています。
+```
+EFI_SYSTEM_TABLE構造体に定義されている構造体 __ConOut__(EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL型)で定義されている関数 __OutputString__ 関数を呼び出しています。
 
-尚この関数はtypedefで定義されておりEFI_SYSTEM_TABLEからの相対位置に関数の実態があることが分かります。
+第一引数には __ConOut自身を渡し__ 第二引数には __L"文字列"__　の形で文字配列を渡しています。
 
-その後は終了防止のwhile (1){}とreturnが定義されています。
+ここで使ったことがない人が多いであろう __L__ について解説します。これはUnicode文字を表す記号です。Lをつけることで一文字2バイトとして取り扱われ日本語などの表示も可能になります。UEFIでは文字は常に2バイトで定義されておりLなしで定義すると1バイト扱いとなりバグります。
+
+そのため __今後文字や文字列を扱う際には必ずLをつけること__ を意識してください。また、 __文字、文字配列を宣言する際には必ずCHAR16を用いて2バイトで文字、文字列を使うようにしてください。__
+
+その後は終了防止のwhile無限ループと実行されることのない成功を返すreturnがたたずんでいます。
+``` C
+while (1){}
+return EFI_SUCCESS;
+```
 
 これでUEFIアプリケーションの完成です！おめでとうございます。
 
@@ -106,31 +130,30 @@ EFI_SYSTEM_TABLE構造体のConOut(EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL)のOutputStri
 
 ### USBメモリのセットアップ
 まずUSBメモリをFAT32でフォーマットする必要があります。
-1. ディスクの管理を起動します。
-1. 上部に表示されているボリューム一覧を確認します。 
+1. __ディスクの管理__ を起動します。
+1. 上部に表示されている __ボリューム一覧__ を確認します。 
 2. USBメモリをPCに差します。
 3. 上部に表示されているボリューム一覧に指したUSBメモリが追加されます。
-4. 追加された名前を参考に下部のディスク一覧からUSBメモリを探します。
-5. 青色のボリュームがある場合は右クリックでボリューム一を削除し続けます。（削除できないボリュームは無視で構いません。）
+4. 追加された名前を参考に __下部のディスク一覧__ からUSBメモリを探します。
+5. 青色のボリューム __がある場合は__ 右クリックでボリューム一を削除し続けます。（ __削除できないボリュームは無視で構いません。__）
 6. 黒色になった部分を選択し右クリックから新しくシンプルボリュームを作成をクリック
-7. 次へを３回押しファイルシステムをFAT32にします。
+7. 次へを __３回__ 押し __ファイルシステムをFAT32にします。__
 8. 次へを押して完了を押します。
 9. エクスプローラーにさっき作ったボリュームが出現するのでそのボリュームを開きます。
-10. その中にEFIフォルダを作成。その中にBOOTフォルダを作成します。
-11. そのBOOTフォルダの中に\\wsl$\Ubuntu\home\user_name\LowLevelUefiKit\内にあるBOOTX64.EFIを移動します。
+10. その中にEFIフォルダを作成。その中にBOOTフォルダを作成します。(例:USB:\\\\EFI\BOOT\\)
+11. そのBOOTフォルダの中に`\\wsl$\Ubuntu\home\user_name\LowLevelUefiKit\tutorial\BOOTX64.EFI`を移動します。
 
 これで準備が出来ました！
 USBをPCに差して起動してみましょう。
 
-起動の仕方はWindowsの設定からWindowsUpdateを開き詳細オプションを開き回復を開きPCの起動をカスタマイズを押します。
+起動の仕方はWindowsの __設定__ から __WindowsUpdate__ を開き __詳細オプション__ を開き __回復__ を開き __PCの起動をカスタマイズ__ を押します。
 
-再起動したらデバイスの使用を選択しEFI USB　Deviceを選択します。
-
+再起動したら __デバイスの使用__ を選択し __EFI USB Device__ を選択します。
 Hello LowLevelUefiKitが表示されたら成功です。
 
 もし表示されなければセキュアブートを無効にしましょう！
-
-（セキュアブートの無効化方法は機種によってかなり違います。その為PCを購入したお店やメーカーに問い合わせをしてください。）
+（セキュアブートの無効化方法は機種によってかなり違います。その為 __調べるか__ PCを購入したお店やメーカーに問い合わせをしてください。）
+https://www.google.com/search?q=%E3%82%BB%E3%82%AD%E3%83%A5%E3%82%A2%E3%83%96%E3%83%BC%E3%83%88%E7%84%A1%E5%8A%B9%E5%8C%96
 
 ### 何故セキュアブートの無効化が必要か？
 まずセキュアブートとは信頼された企業や団体以外のUEFIアプリケーション実行を拒否するものです。
@@ -149,31 +172,31 @@ Hello LowLevelUefiKitが表示されたら成功です。
 （本当に一部なので詳細は仕様書を見てみてください）
 
 ### OUTPUT
-Simple Text Output Protocolというものを使うとテキストを出力することが出来ます。プロトコルを実行することが出来ます。
-これは efi_headers/system_table/simple_text_output_protocol.hに定義されています。
+__Simple Text Output Protocol__ というものを使うとテキストを出力することが出来ます。(正確にはテキスト出力関係全般が使えます)
+これは __LowLevelUefiKit/efi_headers/system_table.h__ に定義されています。
 
 ``` C
 /** 
  * SIMPLE_TEXT_OUTPUTのプロトタイプ
  */
 struct _EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL {
-    EFI_TEXT_RESET                           Reset;
-    EFI_TEXT_STRING                          OutputString;
-    EFI_TEXT_TEST_STRING                     TestString;
-    EFI_TEXT_QUERY_MODE                      QueryMode;
-    EFI_TEXT_SET_MODE                        SetMode;
-    EFI_TEXT_SET_ATTRIBUTE                   SetAttribute;
-    EFI_TEXT_CLEAR_SCREEN                    ClearScreen;
-    EFI_TEXT_SET_CURSOR_POSITION             SetCursorPosition;
-    EFI_TEXT_ENABLE_CURSOR                   EnableCursor;
-    SIMPLE_TEXT_OUTPUT_MODE                  *Mode;
+    EFI_TEXT_RESET                           Reset;         //関数
+    EFI_TEXT_STRING                          OutputString;  //関数
+    EFI_TEXT_TEST_STRING                     TestString;    //関数
+    EFI_TEXT_QUERY_MODE                      QueryMode;     //関数
+    EFI_TEXT_SET_MODE                        SetMode;       //関数
+    EFI_TEXT_SET_ATTRIBUTE                   SetAttribute;  //関数
+    EFI_TEXT_CLEAR_SCREEN                    ClearScreen;   //関数
+    EFI_TEXT_SET_CURSOR_POSITION             SetCursorPosition;//関数
+    EFI_TEXT_ENABLE_CURSOR                   EnableCursor;  //関数
+    SIMPLE_TEXT_OUTPUT_MODE                  *Mode;         //構造体
 };
 ```
 重要個所を抜粋してみました。EFI_TEXT_RESET～EFI_TEXT_ENABLE_CURSORまでの９個の関数とSIMPLE_TEXT_OUTPUT_MODEという一つの構造体が定義されています。
 
-UEFIにおいてはこのような構造体を活用してプログラムを作成していくことになります。
+UEFIにおいてはこのような __構造体を活用してプログラムを作成していく__ ことになります。
 
-このsimple_text_output_protocolをフル活用したサンプルプログラムをsimple_text_output_protocolの下にmain.cとして用意しました。
+このSimple Text Output Protocolをフル活用したサンプルプログラムを       simple_text_output_protocolの下にmain.cとして用意しました。
 ここからはこれをベースに解説をしていきます。
 
 早速ですがおまじないがあります。それはWait4Anykey関数です。これは次で解説をするsimple_text_input_protocolを活用しているので解説は少々お待ちください。動作としては何かキーが押されるまで待機するというメッセージ出力とそのメッセージ通り何かキーが押されるまで待機するだけです。
