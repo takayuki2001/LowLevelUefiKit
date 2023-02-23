@@ -41,7 +41,7 @@ void getLine(CHAR16 str[]){
     EFI_STATUS res;
 
     //単文字列
-    CHAR16 schar[] = {'\0','\0'};
+    CHAR16 schar[] = {L'\0', L'\0'};
 
     //入力カーソル
     gSystemTable->ConOut->EnableCursor(gSystemTable->ConOut, TRUE);
@@ -63,15 +63,15 @@ void getLine(CHAR16 str[]){
             gSystemTable->ConOut->OutputString(gSystemTable->ConOut, schar);
 
             //Enterキーが押された場合
-            if(inputkey.UnicodeChar == '\r'){
+            if(inputkey.UnicodeChar == L'\r'){
                 //短文字列の先頭に文字を挿入。
-                schar[0] = '\n';
+                schar[0] = L'\n';
 
                 //文字を表示
                 gSystemTable->ConOut->OutputString(gSystemTable->ConOut, schar);
 
                 //null文字を最後に入れておわり
-                str[i] = '\0';
+                str[i] = L'\0';
                 return;
             }
 

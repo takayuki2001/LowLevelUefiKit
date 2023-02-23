@@ -314,6 +314,7 @@ Simple Text Input Protocolというものを使うと入力をすることが出
 make simple_text_input_protocol
 ```
 で同様に起動できるのでお試しください。
+起動したら何度かキーを押し、BlueScreenOSと表示された後適当に文字を入力してみてください。入力した文字が表示されます。
 
 Simple Text Input Protocolは __LowLevelUefiKit/efi_headers/system_table/simple_text_input_protocol.h__ に定義されています。
 
@@ -342,7 +343,7 @@ getLine関数を見てみましょう！
     EFI_STATUS res;
 
     //単文字列
-    CHAR16 schar[] = {'\0','\0'};
+    CHAR16 schar[] = {L'\0', L'\0'};
 
     //入力カーソル
     gSystemTable->ConOut->EnableCursor(gSystemTable->ConOut, TRUE);
@@ -360,7 +361,7 @@ struct _EFI_INPUT_KEY {
 };
 ```
 EFI_INPUT_KEYは上記のように定義され、スキャンコードとユニコードが格納されています。
-CHAR16 schar[] = {'\0','\0'};では一文字のみ格納するような文字列を作成しています。
+CHAR16 schar[] = {L'\0', L'\0'};では一文字のみ格納するような文字列を作成しています。
 そのほかは説明済みなので省略します。
 
 ``` C
@@ -390,15 +391,15 @@ CHAR16 schar[] = {'\0','\0'};では一文字のみ格納するような文字列
 
 ``` C
             //Enterキーが押された場合
-            if(inputkey.UnicodeChar == '\r'){
+            if(inputkey.UnicodeChar == L'\r'){
                 //短文字列の先頭に文字を挿入。
-                schar[0] = '\n';
+                schar[0] = L'\n';
 
                 //文字を表示
                 gSystemTable->ConOut->OutputString(gSystemTable->ConOut, schar);
 
                 //null文字を最後に入れておわり
-                str[i] = '\0';
+                str[i] = L'\0';
                 return;
             }
 ```
