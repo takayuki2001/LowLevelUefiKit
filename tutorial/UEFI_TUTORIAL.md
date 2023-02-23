@@ -256,17 +256,17 @@ TestString関数は引数で与えられた文字列が表示可能か（フォ�
 QueryModeは指定したクエリモードに対応しているかを調べる関数になります。ここでいうクエリモードとは80x25の文字表示コンソールや80x50コンソールなどコンソールの行列のことを指します。ここではモード0である80x25の文字表示に対応をしているか調べています。もし80x50以上の行列に対応している場合はベンダー独自で2番以降が割り当てられそのモードの行列は引数で返されます。
 
 ``` C
-        //入力待ちのカーソル
+        //入力待ちのカーソル ON=TRUE
         gSystemTable->ConOut->EnableCursor(gSystemTable->ConOut, TRUE);
         //Key入力待ち
         Wait4Anykey();
-        //入力待ちのカーソル
+        //入力待ちのカーソル OFF=FALSE
         gSystemTable->ConOut->EnableCursor(gSystemTable->ConOut, FALSE);
         
          //Modeチェンジ！
         gSystemTable->ConOut->SetMode(gSystemTable->ConOut, mode);
 ```
-ではEnableCursorを用いてコンソールカーソルをONにしてキー入力を待ちます。そしてカーソルをOFFを切り替えています。その後SetMode関数を用いてコンソールをモード0に設定しています。この際明確な規定はありませんがコンソールはリセットされます。
+ではEnableCursorを用いてコンソールカーソルをONにしてキー入力を待ちます。そしてカーソルをに切り替えています。その後SetMode関数を用いてコンソールをモード0に設定しています。この際明確な規定はありませんがコンソールはリセットされます。
 
 ``` C
     //文字の色属性
