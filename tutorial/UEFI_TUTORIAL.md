@@ -160,8 +160,9 @@ return EFI_SUCCESS;
 8. 完了させます。
 9. エクスプローラーにさっき作ったボリュームが出現するのでそのボリュームを開きます。
 10. その中にEFIフォルダを作成。その中にBOOTフォルダを作成します。(例:USB:\\\\EFI\BOOT\\)
-11. そのBOOTフォルダの中に`\\wsl$\Ubuntu\home\user_name\LowLevelUefiKit\tutorial\BOOTX64.EFI`を移動します。
+11. そのBOOTフォルダの中に`\\wsl$\Ubuntu\home\user_name\LowLevelUefiKit\tutorial\`の中にある`BOOTX64.EFI`を移動します。
 
+(BOOTX64.EFIはmakeコマンド実行時に生成されたものです。makeをするたびに上書きされます。)
 これで準備が出来ました！
 USBをPCに差して起動してみましょう。
 
@@ -192,7 +193,17 @@ https://www.google.com/search?q=%E3%82%BB%E3%82%AD%E3%83%A5%E3%82%A2%E3%83%96%E3
 
 ### OUTPUT
 __Simple Text Output Protocol__ というものを使うとテキストを出力することが出来ます。(正確にはテキスト出力関係全般が使えます)
-これは __LowLevelUefiKit/efi_headers/system_table/simple_text_output_protocol.h__ に定義されています。
+
+このSimple Text Output Protocolをフル活用したサンプルプログラムを       __LowLevelUefiKit/tutorial/example/simple_text_output_protocol/main.c__ として用意しました。
+
+``` bash
+make simple_text_output_protocol
+```
+をUbuntuで入力することで起動ができます。適当にキーを押していくと画面が進んでいきます。
+終了するときはUbuntuでqコマンドを入力し終了してください。
+ここからはこれをベースに解説をしていきます。
+
+Simple Text Output Protocolは __LowLevelUefiKit/efi_headers/system_table/simple_text_output_protocol.h__ に定義されています。
 
 ``` C
 /** 
@@ -214,15 +225,6 @@ struct _EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL {
 重要個所を抜粋してみました。EFI_TEXT_RESET～EFI_TEXT_ENABLE_CURSORまでの９個の関数とSIMPLE_TEXT_OUTPUT_MODEという一つの構造体が定義されています。
 
 UEFIにおいてはこのような __構造体を活用してプログラムを作成していく__ ことになります。
-
-このSimple Text Output Protocolをフル活用したサンプルプログラムを       __LowLevelUefiKit/tutorial/example/simple_text_output_protocol/main.c__ として用意しました。
-
-``` bash
-make simple_text_output_protocol
-```
-を用いることで起動ができます。適当にキーを押していくと画面が進んでいきます。
-終了するときはUbuntuでqコマンドを入力し終了してください。
-ここからはこれをベースに解説をしていきます。
 
 早速ですがおまじないがあります。それはWait4Anykey関数です。これは次で解説をするsimple_text_input_protocolを活用しているので解説は少々お待ちください。動作としては何かキーが押されるまで待機するというメッセージ出力とそのメッセージ通り何かキーが押されるまで待機するだけです。
 
@@ -304,7 +306,6 @@ SIMPLE_TEXT_OUTPUT構造体の中で解説していないものは`SIMPLE_TEXT_O
 
 ### INPUT
 Simple Text Input Protocolというものを使うと入力をすることが出来ます。プロトコルを実行することが出来ます。
-これは __LowLevelUefiKit/efi_headers/system_table/simple_text_input_protocol.h__ に定義されています。
 
 このSimple Text Input Protocolを活用したサンプルプログラムを __LowLevelUefiKit/tutorial/example/simple_text_output_protocol/main.c__ として用意しました。
 ここからはこれをベースに解説をしていきます。
@@ -314,6 +315,7 @@ make simple_text_input_protocol
 ```
 で同様に起動できるのでお試しください。
 
+Simple Text Input Protocolは __LowLevelUefiKit/efi_headers/system_table/simple_text_input_protocol.h__ に定義されています。
 
 ``` C
 /** 
