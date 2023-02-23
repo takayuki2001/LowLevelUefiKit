@@ -1,6 +1,6 @@
 # UEFIチュートリアル
 ## 必要な物
-1. WindowsPC
+1. __WindowsUpdateを行った最新の__ WindowsPC
 1. PC操作の基本
 1. C言語の簡単な知識
 2. 新品のUSBメモリ（データの内容は消えます）
@@ -43,22 +43,31 @@ Windows Subsystem for Linux 通称WSLという機能があります。今回は�
 2023年1月現在では　__Microsoft Store__　の検索からWSLを検索し　__Windows Subsystem for Linux__　をインストール後に __Ubuntu__ と検索をし　__Ubuntu__　もインストールします。更に　__Windows の機能の有効化または無効化__　から　__仮想マシンプラットフォーム__　を有効化しましょう。この３つのインストールが終わったら再起動をして完了です。
 
 #### Windows10の場合
-コマンドプロンプトを __管理者権限__ で起動し`wsl --install`コマンドを実行してください。
+__Windows の機能の有効化または無効化__　から __Windows Subsystem for Linux__ を有効化しましょう。
+そしてコマンドプロンプトを __管理者権限__ で起動し`wsl --install`コマンドを実行してください。
+
+最後に再起動も行ってください。
 
 ### Ubuntuの起動
-WSLとUbuntuのインストールと仮想マシンプラットフォームを有効化が __終わったら__ Ubuntuを起動していきます。　__初回起動時にユーザー名とパスワードの設定を求められるのでこのパスワードを忘れずに覚えておいてください__　__（パスワード入力中は＊＊＊など入力のサインはありません）。__
+上記セットアップが __全て終わったら__ Ubuntuを起動していきます。　__初回起動時にユーザー名とパスワードの設定を求められるのでこのパスワードを忘れずに覚えておいてください__　__（パスワード入力中は＊＊＊など入力のサインはありません）。__
 
 補足：一部環境でエラーが発生するそうです。対処法へのリンクを張るのでエラーになった際には確認してみてください。(AppDataフォルダは隠しフォルダであるため表示設定をしないと表示されません)
 https://qiita.com/kuryus/items/27a7206c64eca7ba710b
+
+それでもだめなら自分で検索して解決を試みてください。Windows○○　WSL　インストール方法とかで出てきます。
 
 ### 各種環境設定
 セットアップが終了したら
 
 ``` bash
 git clone https://github.com/takayuki2001/LowLevelUefiKit.git
-cd LowLevelUefiKit/tutorial/
 ```
 を実行します。
+
+``` bash
+cd LowLevelUefiKit/tutorial/
+```
+も実行します。 __これはUbuntuを起動するたびに行ってください！覚えておくように！！__
 
 次に
 ``` bash
@@ -207,6 +216,12 @@ struct _EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL {
 UEFIにおいてはこのような __構造体を活用してプログラムを作成していく__ ことになります。
 
 このSimple Text Output Protocolをフル活用したサンプルプログラムを       __LowLevelUefiKit/tutorial/example/simple_text_output_protocol/main.c__ として用意しました。
+
+``` bash
+make simple_text_output_protocol
+```
+を用いることで起動ができます。適当にキーを押していくと画面が進んでいきます。
+終了するときはUbuntuでqコマンドを入力し終了してください。
 ここからはこれをベースに解説をしていきます。
 
 早速ですがおまじないがあります。それはWait4Anykey関数です。これは次で解説をするsimple_text_input_protocolを活用しているので解説は少々お待ちください。動作としては何かキーが押されるまで待機するというメッセージ出力とそのメッセージ通り何かキーが押されるまで待機するだけです。
@@ -281,32 +296,39 @@ QueryModeは指定したクエリモードに対応しているかを調べる�
     //文字を表示
     gSystemTable->ConOut->OutputString(gSystemTable->ConOut, L"BlueScreen!\r\n");
 ```
-ではコンソールのカーソルを雰囲気真ん中に移動させます（Mode 0は80x25であるため）。そして雰囲気真ん中にL"BlueScreen!\r\n"を表示しています。
+ではコンソールのカーソルを雰囲気真ん中に移動させます（Mode 0は80x25であるため）。そして雰囲気真ん中に`L"BlueScreen!\r\n"`を表示しています。
 
-SIMPLE_TEXT_OUTPUT構造体の中で解説していないものはSIMPLE_TEXT_OUTPUT_MODE　*Mode;のみとなりましたが、これは現在のモードの情報が格納されています。
+SIMPLE_TEXT_OUTPUT構造体の中で解説していないものは`SIMPLE_TEXT_OUTPUT_MODE　*Mode;`のみとなりましたが、これは現在のモードの情報が格納されています。
 
 以上でOUTPUTの解説は以上となります。
 
 ### INPUT
 Simple Text Input Protocolというものを使うとテキストを出力することが出来ます。プロトコルを実行することが出来ます。
-これは efi_headers/system_table/simple_text_input_protocol.hに定義されています。
+これは __LowLevelUefiKit/efi_headers/system_table/simple_text_input_protocol.h__ に定義されています。
+
+このSimple Text Input Protocolを活用したサンプルプログラムを __LowLevelUefiKit/tutorial/example/simple_text_output_protocol/main.c__ として用意しました。
+ここからはこれをベースに解説をしていきます。
+
+``` bash
+make simple_text_input_protocol
+```
+で同様に起動できるのでお試しください。
+
 
 ``` C
 /** 
  * SIMPLE_TEXT_INPUTのプロトタイプ
  */
 typedef struct _EFI_SIMPLE_TEXT_INPUT_PROTOCOL {
-    EFI_INPUT_RESET                       Reset;
-    EFI_INPUT_READ_KEY                    ReadKeyStroke;
-    EFI_EVENT                             WaitForKey;
+    EFI_INPUT_RESET                       Reset;         //関数
+    EFI_INPUT_READ_KEY                    ReadKeyStroke; //関数
+    EFI_EVENT                             WaitForKey;    //イベント
 } EFI_SIMPLE_TEXT_INPUT_PROTOCOL;
 ```
 重要個所を抜粋してみました。今回は２個の関数と1つのイベントを持つ構造体が定義されています。
 Reset関数は入力デバイスをリセットします。ReadKeyStrokey関数では今この瞬間に押されているキーを取得します。
 EFI_EVENT WaitForKeyは別で定義されているイベントシステムに渡すための引数です。
 
-このsimple_text_input_protocolを活用したサンプルプログラムをsimple_text_input_protocolの下にmain.cとして用意しました。
-ここからはこれをベースに解説をしていきます。
 
 getLine関数を見てみましょう！
 
