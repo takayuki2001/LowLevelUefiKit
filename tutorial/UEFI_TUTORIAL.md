@@ -1,6 +1,6 @@
 # UEFIチュートリアル
 ## 必要な物
-1. WindowsPC
+1. __WindowsUpdateを行った最新の__ WindowsPC
 1. PC操作の基本
 1. C言語の簡単な知識
 2. 新品のUSBメモリ（データの内容は消えます）
@@ -10,6 +10,7 @@
 
 ### あると便利な物
 1. サブのPC
+1. 拡張子が表示状態のエクスプローラー
 
 ### 注意事項
 本文書に対しての何らかの保証はなく、内容に基づくいかなる結果に対しても一切の責任を負いません。
@@ -21,7 +22,7 @@
 私はこれを不思議だと思います。それはなぜでしょうか？
 考えてみてください。私は調べ物をするためにブラウザを起動したいわけです。別にWindowsを起動したいわけではありません。なぜブラウザを起動するためにWindowsを起動しなければいけないのでしょうか？邪魔ですね！
 
-そんな不思議なWindowsの存在意義を説明したいと思います。Windwosはブラウザ以外のソフトウェアを同時に起動できるようにしたりセキュリティを守る役割を担っています。例えば音楽を聞きながらゲームをするといった事はよくある事があると思います。この時ゲームとブラウザを同時起動できるように二つのソフトウェアを管理してくれているのがWindowsです。
+そんな不思議なWindowsの存在意義を説明したいと思います。Windowsはブラウザ以外のソフトウェアを同時に起動できるようにしたりセキュリティを守る役割を担っています。例えば音楽を聞きながらゲームをするといった事はよくある事があると思います。この時ゲームとブラウザを同時起動できるように二つのソフトウェアを管理してくれているのがWindowsです。
 
 ちなみにWindowsというのはMicrosoftが開発・販売している物ですが競合他社製品としてUbuntuやAndroidなどの製品があります。これらの事をOSと呼びます。これはプリウスやフェアレディZに対する車のような物です。
 
@@ -36,33 +37,51 @@ OSがソフトウェア管理などを行ってくれることが分かりまし
 UEFIは上記の通りOSよりも下にあり、情報が少ない分野です。ですがUEFIはOS起動までの仕事を担っておりその役割は単純ですが重要です。そんなUEFIアプリケーションを作ることを通じてセキュリティやプログラム実行の仕組み・C言語について深く学べる数少ない教材であり、各ソフトウェアの国産化を目指すのであれば決して無視できない領域です。
 
 ### WSLのセットアップ
-Windows Subsystem for Linux 通称WSLという機能があります。今回はこれを用いて作業をしていきます。そこでまずWSLのセットアップを行う必要があります。2023年1月現在では　__Microsoft Store__　の検索からWSLを検索し　__Windows Subsystem for Linux__　をインストール後に__Ubuntu__　と検索をし　__Ubuntu__　もインストールします。更に　__Windows の機能の有効化または無効化__　から　__仮想マシンプラットフォーム__　を有効化しましょう。この３つのインストールが終わったら再起動をして完了です。
+Windows Subsystem for Linux 通称WSLという機能があります。今回はこれを用いて作業をしていきます。そこでまずWSLのセットアップを行う必要があります。
+
+#### Windows11の場合
+2023年1月現在では　__Microsoft Store__　の検索からWSLを検索し　__Windows Subsystem for Linux__　をインストール後に __Ubuntu__ と検索をし　__Ubuntu__　もインストールします。更に　__Windows の機能の有効化または無効化__　から　__仮想マシンプラットフォーム__　を有効化しましょう。この３つのインストールが終わったら再起動をして完了です。
+
+#### Windows10の場合
+__Windows の機能の有効化または無効化__　から __Windows Subsystem for Linux__ を有効化しましょう。
+そしてコマンドプロンプトを __管理者権限__ で起動し`wsl --install`コマンドを実行してください。
+
+最後に再起動も行ってください。
 
 ### Ubuntuの起動
-WSLとUbuntuのインストールが終わったらUbuntuを起動していきます。　__初回起動時にユーザー名とパスワードの設定を求められるのでこのパスワードを忘れずに覚えておいてください__　__（パスワード入力中は＊＊＊など入力のサインはありません）。__
+上記セットアップが __全て終わったら__ Ubuntuを起動していきます。　__初回起動時にユーザー名とパスワードの設定を求められるのでこのパスワードを忘れずに覚えておいてください__　__（パスワード入力中は＊＊＊など入力のサインはありません）。__
+
+補足：一部環境でエラーが発生するそうです。対処法へのリンクを張るのでエラーになった際には確認してみてください。(AppDataフォルダは隠しフォルダであるため表示設定をしないと表示されません)
+https://qiita.com/kuryus/items/27a7206c64eca7ba710b
+
+それでもだめなら自分で検索して解決を試みてください。Windows○○　WSL　インストール方法とかで出てきます。
 
 ### 各種環境設定
 セットアップが終了したら
 
 ``` bash
 git clone https://github.com/takayuki2001/LowLevelUefiKit.git
-cd LowLevelUefiKit/tutorial/
 ```
 を実行します。
 
+``` bash
+cd LowLevelUefiKit/tutorial/
+```
+も実行します。 __これはUbuntuを起動するたびに行ってください！覚えておくように！！__
+
 次に
 ``` bash
-sudo ./setup.sh
+sudo bash ./setup.sh
 make setup
 ```
-を実行します。もしもパスワード入力が求められた場合は初回起動時に設定したパスワードを入力してください。
+を実行します。もしもパスワード入力が求められた場合は初回起動時に設定したパスワードを入力してください。(__エラーが出ても無視で構いません__)
 
 それが終わったら
 ``` bash
 make hello_world
 ```
 を実行しUEFIアプリケーションを起動できます。
-その後は立ち上がったUEFIアプリケーションではなくWSLの画面で __q__ を入力し終了させましょう。
+その後は立ち上がったUEFIアプリケーションではなくUbuntuの画面で __q__ を入力し終了させましょう。
 
 ### UEFIアプリケーションにおける文字表示のプロセスを確認しよう。
 `\\wsl$\Ubuntu\home\user_name\LowLevelUefiKit`
@@ -136,13 +155,14 @@ return EFI_SUCCESS;
 3. 上部に表示されているボリューム一覧に指したUSBメモリが追加されます。
 4. 追加された名前を参考に __下部のディスク一覧__ からUSBメモリを探します。
 5. 青色のボリューム __がある場合は__ 右クリックでボリューム一を削除し続けます。（ __削除できないボリュームは無視で構いません。__）
-6. 黒色になった部分を選択し右クリックから新しくシンプルボリュームを作成をクリック
-7. 次へを __３回__ 押し __ファイルシステムをFAT32にします。__
-8. 次へを押して完了を押します。
+6. 黒色の部分を選択し右クリックから新しくシンプルボリュームを作成をクリック（ボリュームの削除を行った場合には青色の部分を右クリックしフォーマットを押してください）
+7. 次へが __ある場合__ 次への何回か押し __ファイルシステムをFAT32にします。__
+8. 完了させます。
 9. エクスプローラーにさっき作ったボリュームが出現するのでそのボリュームを開きます。
 10. その中にEFIフォルダを作成。その中にBOOTフォルダを作成します。(例:USB:\\\\EFI\BOOT\\)
-11. そのBOOTフォルダの中に`\\wsl$\Ubuntu\home\user_name\LowLevelUefiKit\tutorial\BOOTX64.EFI`を移動します。
+11. そのBOOTフォルダの中に`\\wsl$\Ubuntu\home\user_name\LowLevelUefiKit\tutorial\`の中にある`BOOTX64.EFI`を移動します。
 
+(BOOTX64.EFIはmakeコマンド実行時に生成されたものです。makeをするたびに上書きされます。)
 これで準備が出来ました！
 USBをPCに差して起動してみましょう。
 
@@ -166,14 +186,24 @@ https://www.google.com/search?q=%E3%82%BB%E3%82%AD%E3%83%A5%E3%82%A2%E3%83%96%E3
 ## UEFIで他の機能を呼び出してみよう
 
 ### 遂に内製化!!
-ここからはUEFIの他の機能をいつくか紹介していきます。
+ここからはUEFIの他の機能をいくつか紹介していきます。
 一般的なOSでは起動時のみUEFIを活用し、起動が始まったらOS自身がUEFIを頼らずにキーボードやマウスを管理します。つまりUEFIの機能を多く使いません。ですがこれはOSだから自前管理が必要なのであり特定用途に向けたUEFIアプリケーションではこれらの機能を上手く使うことによって国産化をすることが出来ます。しかも簡単に！！その為に代表的なUEIF機能をいくつか紹介してみようと思います。
 
 （本当に一部なので詳細は仕様書を見てみてください）
 
 ### OUTPUT
 __Simple Text Output Protocol__ というものを使うとテキストを出力することが出来ます。(正確にはテキスト出力関係全般が使えます)
-これは __LowLevelUefiKit/efi_headers/system_table.h__ に定義されています。
+
+このSimple Text Output Protocolをフル活用したサンプルプログラムを       __LowLevelUefiKit/tutorial/example/simple_text_output_protocol/main.c__ として用意しました。
+
+``` bash
+make simple_text_output_protocol
+```
+をUbuntuで入力することで起動ができます。適当にキーを押していくと画面が進んでいきます。
+終了するときはUbuntuでqコマンドを入力し終了してください。
+ここからはこれをベースに解説をしていきます。
+
+Simple Text Output Protocolは __LowLevelUefiKit/efi_headers/system_table/simple_text_output_protocol.h__ に定義されています。
 
 ``` C
 /** 
@@ -196,9 +226,6 @@ struct _EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL {
 
 UEFIにおいてはこのような __構造体を活用してプログラムを作成していく__ ことになります。
 
-このSimple Text Output Protocolをフル活用したサンプルプログラムを       simple_text_output_protocolの下にmain.cとして用意しました。
-ここからはこれをベースに解説をしていきます。
-
 早速ですがおまじないがあります。それはWait4Anykey関数です。これは次で解説をするsimple_text_input_protocolを活用しているので解説は少々お待ちください。動作としては何かキーが押されるまで待機するというメッセージ出力とそのメッセージ通り何かキーが押されるまで待機するだけです。
 
 ``` C
@@ -216,7 +243,7 @@ UEFIにおいてはこのような __構造体を活用してプログラムを�
 ``` 
 EFI_STATUS res;は戻り値を格納するための変数です。例えばEFI_SUCCESSなどが入ります。
 TestString関数は引数で与えられた文字列が表示可能か（フォントが存在しているか）を確認します。
-つまりその次のif(res == EFI_SUCCESS){では日本語フォントが存在しているかを判定した結果が判定成功であれば日本語文メッセージを表示しています。（英字フォントは当然として存在しているものとしています。）
+つまりその次の `if(res == EFI_SUCCESS){` では日本語フォントが存在しているかを判定した結果が判定成功であれば日本語文メッセージを表示しています。（英字フォントは当然として存在しているものとしています。）
 
 ``` C
     //指定したモードに対応しているかを確認する。
@@ -231,17 +258,17 @@ TestString関数は引数で与えられた文字列が表示可能か（フォ�
 QueryModeは指定したクエリモードに対応しているかを調べる関数になります。ここでいうクエリモードとは80x25の文字表示コンソールや80x50コンソールなどコンソールの行列のことを指します。ここではモード0である80x25の文字表示に対応をしているか調べています。もし80x50以上の行列に対応している場合はベンダー独自で2番以降が割り当てられそのモードの行列は引数で返されます。
 
 ``` C
-        //入力待ちのカーソル
+        //入力待ちのカーソル ON=TRUE
         gSystemTable->ConOut->EnableCursor(gSystemTable->ConOut, TRUE);
         //Key入力待ち
         Wait4Anykey();
-        //入力待ちのカーソル
+        //入力待ちのカーソル OFF=FALSE
         gSystemTable->ConOut->EnableCursor(gSystemTable->ConOut, FALSE);
         
          //Modeチェンジ！
         gSystemTable->ConOut->SetMode(gSystemTable->ConOut, mode);
 ```
-ではEnableCursorを用いてコンソールカーソルをONにしてキー入力を待ちます。そしてカーソルをOFFを切り替えています。その後SetMode関数を用いてコンソールをモード0に設定しています。この際明確な規定はありませんがコンソールはリセットされます。
+ではEnableCursorを用いてコンソールカーソルをONにしてキー入力を待ちます。そしてカーソルをに切り替えています。その後SetMode関数を用いてコンソールをモード0に設定しています。この際明確な規定はありませんがコンソールはリセットされます。
 
 ``` C
     //文字の色属性
@@ -271,32 +298,40 @@ QueryModeは指定したクエリモードに対応しているかを調べる�
     //文字を表示
     gSystemTable->ConOut->OutputString(gSystemTable->ConOut, L"BlueScreen!\r\n");
 ```
-ではコンソールのカーソルを雰囲気真ん中に移動させます（Mode 0は80x25であるため）。そして雰囲気真ん中にL"BlueScreen!\r\n"を表示しています。
+ではコンソールのカーソルを大体真ん中に移動させます（Mode 0は80x25であるため）。そして雰囲気真ん中に`L"BlueScreen!\r\n"`を表示しています。
 
-SIMPLE_TEXT_OUTPUT構造体の中で解説していないものはSIMPLE_TEXT_OUTPUT_MODE　*Mode;のみとなりましたが、これは現在のモードの情報が格納されています。
+SIMPLE_TEXT_OUTPUT構造体の中で解説していないものは`SIMPLE_TEXT_OUTPUT_MODE　*Mode;`のみとなりましたが、これは現在のモードの情報が格納されています。
 
 以上でOUTPUTの解説は以上となります。
 
 ### INPUT
-Simple Text Input Protocolというものを使うとテキストを出力することが出来ます。プロトコルを実行することが出来ます。
-これは efi_headers/system_table/simple_text_input_protocol.hに定義されています。
+Simple Text Input Protocolというものを使うと入力をすることが出来ます。プロトコルを実行することが出来ます。
+
+このSimple Text Input Protocolを活用したサンプルプログラムを __LowLevelUefiKit/tutorial/example/simple_text_input_protocol/main.c__ として用意しました。
+ここからはこれをベースに解説をしていきます。
+
+``` bash
+make simple_text_input_protocol
+```
+で同様に起動できるのでお試しください。
+起動したら何度かキーを押し、BlueScreenOSと表示された後適当に文字を入力してみてください。入力した文字が表示されます。
+
+Simple Text Input Protocolは __LowLevelUefiKit/efi_headers/system_table/simple_text_input_protocol.h__ に定義されています。
 
 ``` C
 /** 
  * SIMPLE_TEXT_INPUTのプロトタイプ
  */
 typedef struct _EFI_SIMPLE_TEXT_INPUT_PROTOCOL {
-    EFI_INPUT_RESET                       Reset;
-    EFI_INPUT_READ_KEY                    ReadKeyStroke;
-    EFI_EVENT                             WaitForKey;
+    EFI_INPUT_RESET                       Reset;         //関数
+    EFI_INPUT_READ_KEY                    ReadKeyStroke; //関数
+    EFI_EVENT                             WaitForKey;    //イベント
 } EFI_SIMPLE_TEXT_INPUT_PROTOCOL;
 ```
 重要個所を抜粋してみました。今回は２個の関数と1つのイベントを持つ構造体が定義されています。
 Reset関数は入力デバイスをリセットします。ReadKeyStrokey関数では今この瞬間に押されているキーを取得します。
 EFI_EVENT WaitForKeyは別で定義されているイベントシステムに渡すための引数です。
 
-このsimple_text_input_protocolを活用したサンプルプログラムをsimple_text_input_protocolの下にmain.cとして用意しました。
-ここからはこれをベースに解説をしていきます。
 
 getLine関数を見てみましょう！
 
@@ -308,7 +343,7 @@ getLine関数を見てみましょう！
     EFI_STATUS res;
 
     //単文字列
-    CHAR16 schar[] = {'\0','\0'};
+    CHAR16 schar[] = {L'\0', L'\0'};
 
     //入力カーソル
     gSystemTable->ConOut->EnableCursor(gSystemTable->ConOut, TRUE);
@@ -326,7 +361,7 @@ struct _EFI_INPUT_KEY {
 };
 ```
 EFI_INPUT_KEYは上記のように定義され、スキャンコードとユニコードが格納されています。
-CHAR16 schar[] = {'\0','\0'};では一文字のみ格納するような文字列を作成しています。
+CHAR16 schar[] = {L'\0', L'\0'};では一文字のみ格納するような文字列を作成しています。
 そのほかは説明済みなので省略します。
 
 ``` C
@@ -356,15 +391,15 @@ CHAR16 schar[] = {'\0','\0'};では一文字のみ格納するような文字列
 
 ``` C
             //Enterキーが押された場合
-            if(inputkey.UnicodeChar == '\r'){
+            if(inputkey.UnicodeChar == L'\r'){
                 //短文字列の先頭に文字を挿入。
-                schar[0] = '\n';
+                schar[0] = L'\n';
 
                 //文字を表示
                 gSystemTable->ConOut->OutputString(gSystemTable->ConOut, schar);
 
                 //null文字を最後に入れておわり
-                str[i] = '\0';
+                str[i] = L'\0';
                 return;
             }
 ```
@@ -373,7 +408,7 @@ CHAR16 schar[] = {'\0','\0'};では一文字のみ格納するような文字列
 ### Let's make OS!
 それでは今までの知見を生かしていくつかの動作を提供するようなOSを作成してみましょう。
 
-やはりサンプルプログラムをsimple_osの下にmain.cとして用意しました。
+やはりサンプルプログラムを __LowLevelUefiKit/tutorial/example/simple_os/main.c__ として用意しました。
 
 基本的に関数整備を行っています。Cの標準ライブラリに沿ったような関数になっていますので各自で動作を確認してみてください。
 

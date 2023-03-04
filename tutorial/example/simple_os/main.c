@@ -146,7 +146,7 @@ CHAR16 getch(){
         if(res == EFI_SUCCESS){
 
             //文字を表示
-            puts(schar);
+            putch(inputkey.UnicodeChar);
             return inputkey.UnicodeChar;
         }
     }
@@ -226,7 +226,7 @@ INTN suggestLine(CHAR16 str[], CHAR16* sugs[], int size){
 
         if(c == L'\t'){
             puts(L"\r\n");
-            printStrArray(sugs, size);
+            putsStrArray(sugs, size);
             return -1;
         }
 
